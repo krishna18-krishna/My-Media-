@@ -29,9 +29,21 @@
                 <input type="search"  placeholder="Search">
             </div>
             <div class="nav-user-icon online">
-                <img src="assets/images/profile-pic.jpg" alt="Profile">
+                <img src="assets/images/profile-pic.jpg" alt="Profile" onclick="toggleMenu()">
+ 
+                <!------------------ Settings-menu --------------------->
+            <!-- <div class="nav-user-icon online">
+                <img src="assets/images/profile-pic.jpg" alt="Profile" onclick="toggleMenu()"> -->
+                <div id="settings-menu" class="settings-menu">
+                    <a href="#">See your profile</a>
+                    <a href="#">Settings & Privacy</a>
+                    <a href="#">Help & Support</a>
+                    <a href="#">Display & Accessibility</a>
+                    <a href="#" id="logout" onclick="showLogoutAlert()">Logout</a>
+                </div>
             </div>
-        </div>
+
+
     </nav>
 
         <div class="container">
@@ -67,12 +79,19 @@
 
             </div> -->
         </div>
+        <div id="logout-alert" class="logout-alert" style="display: none;">
+            <h1 class="alert-content">Are you sure you want to logout?</h1>
+            <div class="button">
+                <button class="yes" type="button" onclick="logout()">Yes</button>
+                <button class="no" type="button" onclick="hideLogoutAlert()">No</button>
+            </div>
+        </div>
 
 
 
 
 
 
-<script src=""></script>
+<script src="js/script.js"></script>
 </body>
 </html>

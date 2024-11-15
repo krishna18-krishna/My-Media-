@@ -65,7 +65,7 @@ nav{
 .online{
     position: relative;
 }
-.online::after{
+/* .online::after{
     content: '';
     width: 7px;
     height: 7px;
@@ -75,7 +75,7 @@ nav{
     position: absolute;
     top: 0;
     right: 0;
-}
+} */
 .container{
     display: flex;
     justify-content: space-between;
@@ -142,4 +142,64 @@ nav{
     text-decoration: none;
     color: #1876f2;
     font-size: 12px;
+}
+
+
+/*Drop down*/
+.settings-menu{
+    position: absolute;
+    width: 650%;
+    max-width:250px;
+    height: 250px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    overflow: hidden;
+    top: 120%;
+    right: 0px;
+    display: none;
+}
+.settings-menu a{
+    display: flex;
+    text-decoration: none;
+    color: #000;
+    margin-top: 25px;
+    margin-left: 20px;
+}
+
+.logout-alert{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    flex-direction: column;
+    top: 250px;
+    height: 110px;
+    width: 400px;
+    background-color: #fff;
+    left: 550px;
+    box-shadow: #626262;
+   
+}
+.alert-content{
+    font-size: medium;
+    position: relative;
+    top: 20px;
+
+}
+.button button{
+    margin-top: 40px;
+    margin-right: 60px;
+    margin-left: 40px;
+    padding: 5px;
+    width: 50px;
+    color: #fff;
+    border: #fff;
+}
+.button .yes{
+    background-color: red;
+}
+.button .no{
+    background-color: green;
 }

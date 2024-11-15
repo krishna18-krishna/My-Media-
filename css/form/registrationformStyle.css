@@ -18,6 +18,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
+    flex-direction: column;
 }
 
 .form-box {
@@ -74,7 +75,7 @@ form input {
 }
 
 form button {
-    width: 60%;
+    width: 65%;
     padding: 12px;
     background-color: #3B82F6;
     color: #fff;
