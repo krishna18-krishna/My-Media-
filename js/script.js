@@ -56,5 +56,5 @@ function hideLogoutAlert() {
 // Logout and redirect to login page
 function logout() {
     // Redirect to the login page
-    window.location.href = "../index.html";  // Replace 'login.html' with the correct path to your login page
+    window.location.href = "./index.html";  // Replace 'login.html' with the correct path to your login page
 }
