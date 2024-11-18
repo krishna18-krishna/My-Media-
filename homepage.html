@@ -29,7 +29,7 @@
                 <input type="search"  placeholder="Search">
             </div>
             <div class="nav-user-icon online">
-                <img src="assets/images/profile-pic.jpg" alt="Profile" onclick="toggleMenu()">
+                <a href="#"><img src="assets/images/profile-pic.jpg" alt="Profile" onclick="toggleMenu()"></a>
  
                 <!------------------ Settings-menu --------------------->
             <!-- <div class="nav-user-icon online">
@@ -82,8 +82,8 @@
         <div id="logout-alert" class="logout-alert" style="display: none;">
             <h1 class="alert-content">Are you sure you want to logout?</h1>
             <div class="button">
-                <button class="yes" type="button" onclick="logout()">Yes</button>
-                <button class="no" type="button" onclick="hideLogoutAlert()">No</button>
+               <button class="yes" type="button" onclick="logout()"><a href="#">Yes</a></button>
+               <button class="no" type="button" onclick="hideLogoutAlert()"><a href="#">No</a></button>
             </div>
         </div>
 

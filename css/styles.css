@@ -188,6 +188,10 @@ nav{
     top: 20px;
 
 }
+.button button a{
+    color: #fff;
+    text-decoration: none;
+}
 .button button{
     margin-top: 40px;
     margin-right: 60px;

@@ -19,6 +19,19 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
+// Redirect if logged in
+/* async function checkLoginStatus() {
+  const user = auth.currentUser;
+  if (user) {
+      const userDoc = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDoc);
+      if (userSnapshot.exists() && userSnapshot.data().loginStatus) {
+          window.location.href = "./homepage.html";
+      }
+  }
+}
+checkLoginStatus(); */
+
 // Login form elements
 const loginForm = document.getElementById("loginForm");
 const email = document.getElementById("email");
