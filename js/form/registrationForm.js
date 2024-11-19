@@ -35,7 +35,7 @@ const confirmPasswordError = document.getElementById("confirmPasswordError");
 const usernameError = document.getElementById("usernameError");
 
 
-/* //chatgpt// Function to check if username is already taken
+ //chatgpt// Function to check if username is already taken
 async function isUsernameAvailable(username) {
   const usersRef = collection(db, "users");
   const q = query(usersRef, where("username", "==", username));
@@ -44,70 +44,78 @@ async function isUsernameAvailable(username) {
 }
 
 // Add submit event listener
-registrationForm.addEventListener("submit", async (event) => {
+registrationForm.addEventListener("submit", (event) => {
   event.preventDefault(); // Prevent default form submission behavior
   let valid = true;
 
   // Clear previous error messages
   emailError.textContent = "";
   fullnameError.textContent = "";
+  usernameError.textContent = "";
   passwordError.textContent = "";
   confirmPasswordError.textContent = "";
-  usernameError.textContent = "";
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailPattern1 = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
+  const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const usernamePattern = /^[a-z0-9._]+$/;
+  const fullNamePattern = /^[a-zA-Z\s]+$/;
 
-  // Validate form fields
+  // Email validation
   if (email.value.trim() === "") {
-    emailError.textContent = "Email is required";
+    emailError.textContent = "Email is required.";
     valid = false;
   } else if (!emailPattern.test(email.value.trim())) {
-    emailError.textContent = "Email is invalid";
+    emailError.textContent = "Email is invalid.";
+    valid = false;
+  } else if (!emailPattern1.test(email.value.trim())) {
+    emailError.textContent = "Please enter a valid email.";
     valid = false;
   }
-  
+
+  // Full name validation
   if (fullname.value.trim() === "") {
-    fullnameError.textContent = "Full name is required";
+    fullnameError.textContent = "Full name is required.";
+    valid = false;
+  } else if (fullname.value.trim().length <= 4) {
+    fullnameError.textContent = "Full name must have at least 4 characters.";
     valid = false;
   }
-  
+  else if (!fullNamePattern.test(fullname.value.trim())) {
+    fullnameError.textContent = "Full name cannot contain special characters or numbers.";
+    valid = false;
+}
+
+  // Username validation
   if (username.value.trim() === "") {
-    usernameError.textContent = "Username is required";
+    usernameError.textContent = "Username is required.";
     valid = false;
-  } else {
-    // Check if username is available
-    const usernameAvailable = await isUsernameAvailable(username.value.trim());
-    if (!usernameAvailable) {
-      usernameError.textContent = "Username is already in use.";
-      valid = false;
-    }
+  } else if (!usernamePattern.test(username.value.trim())) {
+    usernameError.textContent = "Username can only contain letters (a-z), numbers (0-9), and special characters like (_) and (.).";
+    valid = false;
   }
-  
+
+  // Password validation
   if (password.value.trim() === "") {
-    passwordError.textContent = "Password is required";
+    passwordError.textContent = "Password is required.";
+    valid = false;
+  } else if (!passwordPattern.test(password.value.trim())) {
+    passwordError.textContent = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
     valid = false;
   }
-  
+
+  // Confirm password validation
   if (password.value !== confirmPassword.value) {
-    confirmPasswordError.textContent = "Passwords do not match";
+    confirmPasswordError.textContent = "Passwords do not match.";
     valid = false;
   }
 
   // If form validation passes, create a new user
   if (valid) {
     createUserWithEmailAndPassword(auth, email.value, password.value)
-      .then(async (userCredential) => {
+      .then((userCredential) => {
         // Registration successful
         const user = userCredential.user;
-
-        // Save username in Firestore under a "users" collection
-        await addDoc(collection(db, "users"), {
-          uid: user.uid,
-          email: email.value,
-          fullname: fullname.value,
-          username: username.value
-        });
-
         console.log("User registered:", user);
         window.location.href = "../../homepage.html";
       })
@@ -126,69 +134,71 @@ registrationForm.addEventListener("submit", async (event) => {
         }
       });
   }
-}); */
+}); 
 
-
-// Add submit event listener
-registrationForm.addEventListener("submit", (event) => {
+/* registrationForm.addEventListener("submit", (event) => {
   event.preventDefault(); // Prevent default form submission behavior
   let valid = true;
 
   // Clear previous error messages
   emailError.textContent = "";
   fullnameError.textContent = "";
+  usernameError.textContent = "";
   passwordError.textContent = "";
   confirmPasswordError.textContent = "";
-  usernameError.textContent = "";
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   const emailPattern1 = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
   const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   const usernamePattern = /^[a-z0-9._]+$/;
+  const fullNamePattern = /^[a-zA-Z\s]+$/;
 
-  // Check if each field is empty and set error messages if necessary
+  // Email validation
   if (email.value.trim() === "") {
-      emailError.textContent = "Email is required";
-      valid = false;
-  }
-  else if (!emailPattern.test(email.value.trim())) {
-    emailError.textContent = "Email is invalid";
+    emailError.textContent = "Email is required.";
     valid = false;
-  }
-  else if (!emailPattern1.test(email.value.trim())) {
-    emailError.textContent = "Please enter a valid email";
+  } else if (!emailPattern.test(email.value.trim())) {
+    emailError.textContent = "Email is invalid.";
     valid = false;
-  }
-  
-  if (fullname.value.trim() === "") {
-      fullnameError.textContent = "Full name is required";
-      valid = false;
-  }
-  if (username.value.trim() === "") {
-      usernameError.textContent = "Username is required";
-      valid = false;
-  }
-  else if (!usernamePattern.test(username.value.trim())) {
-    usernameError.textContent = "Username can only contain letters(a-z), numbers(0-9), special characters like(_) and (.)";
-    valid = false;  
-  }
-  if (password.value.trim() === "") {
-      passwordError.textContent = "Password is required";
-      valid = false;
-  }
-  else if (!passwordPattern.test(password.value.trim())) {
-    passwordError.textContent = "Password must contain at least one uppercase letter, one lowercase letter, onenumber, and one special character";
+  } else if (!emailPattern1.test(email.value.trim())) {
+    emailError.textContent = "Please enter a valid email.";
     valid = false;
   }
 
-  // Check if passwords match
-  if (password.value !== confirmPassword.value) {
-      confirmPasswordError.textContent = "Passwords do not match";
-      valid = false;
+  // Full name validation
+  if (fullname.value.trim() === "") {
+    fullnameError.textContent = "Full name is required.";
+    valid = false;
+  } else if (fullname.value.trim().length <= 4) {
+    fullnameError.textContent = "Full name must have at least 4 characters.";
+    valid = false;
   }
-  else if (!passwordPattern.test(password.value.trim())) {
-      confirmPassword.textContent = "Password must contain at least one uppercase letter, one lowercase letter, onenumber, and one special character";
+  else if (!fullNamePattern.test(fullname.value.trim())) {
+    fullnameError.textContent = "Full name cannot contain special characters or numbers.";
+    valid = false;
+}
+
+  // Username validation
+  if (username.value.trim() === "") {
+    usernameError.textContent = "Username is required.";
+    valid = false;
+  } else if (!usernamePattern.test(username.value.trim())) {
+    usernameError.textContent = "Username can only contain letters (a-z), numbers (0-9), and special characters like (_) and (.).";
+    valid = false;
+  }
+
+  // Password validation
+  if (password.value.trim() === "") {
+    passwordError.textContent = "Password is required.";
+    valid = false;
+  } else if (!passwordPattern.test(password.value.trim())) {
+    passwordError.textContent = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+    valid = false;
+  }
+
+  // Confirm password validation
+  if (password.value !== confirmPassword.value) {
+    confirmPasswordError.textContent = "Passwords do not match.";
     valid = false;
   }
 
@@ -198,8 +208,8 @@ registrationForm.addEventListener("submit", (event) => {
       .then((userCredential) => {
         // Registration successful
         const user = userCredential.user;
-        console.log("User:", user);
-        window.location.href="../../homepage.html";
+        console.log("User registered:", user);
+        window.location.href = "../../homepage.html";
       })
       .catch((error) => {
         // Handle registration errors
@@ -217,3 +227,4 @@ registrationForm.addEventListener("submit", (event) => {
       });
   }
 });
+ */
