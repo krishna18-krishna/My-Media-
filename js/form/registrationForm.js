@@ -58,7 +58,7 @@ registrationForm.addEventListener("submit", (event) => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailPattern1 = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
   const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  const usernamePattern = /^[a-z0-9._]+$/;
+  const usernamePattern = /^[a-z0-9_]+$/;
   const fullNamePattern = /^[a-zA-Z\s]+$/;
 
   // Email validation
@@ -91,7 +91,7 @@ registrationForm.addEventListener("submit", (event) => {
     usernameError.textContent = "Username is required.";
     valid = false;
   } else if (!usernamePattern.test(username.value.trim())) {
-    usernameError.textContent = "Username can only contain letters (a-z), numbers (0-9), and special characters like (_) and (.).";
+    usernameError.textContent = "Username can only contain letters (a-z), numbers (0-9), and special characters like (_)";
     valid = false;
   }
 
