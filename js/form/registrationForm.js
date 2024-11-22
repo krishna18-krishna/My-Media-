@@ -58,7 +58,8 @@ registrationForm.addEventListener("submit", (event) => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailPattern1 = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
   const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  const usernamePattern = /^[a-z0-9_]+$/;
+  const usernamePattern = /^[a-z0-9_]+$/; // Only allows lowercase letters, numbers, and underscore
+  const hasSpace = /\s/; // Check for whitespace characters
   const fullNamePattern = /^[a-zA-Z\s]+$/;
 
   // Email validation
@@ -94,6 +95,10 @@ registrationForm.addEventListener("submit", (event) => {
     usernameError.textContent = "Username can only contain letters (a-z), numbers (0-9), and special characters like (_)";
     valid = false;
   }
+  else if (!hasSpace.test(username.value.trim())) {
+    usernameError.textContent = "Username cannot contain spaces.";
+    valid = false;
+}
 
   // Password validation
   if (password.value.trim() === "") {
