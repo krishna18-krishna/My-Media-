@@ -51,7 +51,7 @@ loginForm.addEventListener("submit", (event) => {
   emailError.textContent = "";
   passwordError.textContent = "";
 
-  /* const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; */
+  const emailPattern1 = /^[^\s@]+@[^0-9][^\s@]+\.[a-z]{2,}$/i;
   const emailPattern = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
 
 
@@ -64,6 +64,12 @@ loginForm.addEventListener("submit", (event) => {
   else if (!emailPattern.test(email.value.trim())) {
     emailError.textContent = "Email is invalid";
     valid = false;
+  }
+  else if (!emailPattern1.test(email.value.trim())){
+    if(/@[0-9]/.test(email.value.trim())){
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    }
   }
   else if (!emailPattern.test(email.value.trim())) {
     emailError.textContent = "Please enter a valid email ending with .com, .net, .org, etc.";
