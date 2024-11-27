@@ -51,13 +51,13 @@ loginForm.addEventListener("submit", (event) => {
   emailError.textContent = "";
   passwordError.textContent = "";
 
-  const emailPattern1 = /^[^\s@]+@[^0-9][^\s@]+\.[a-z]{2,}$/i;
-  const emailPattern = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
+  /* const emailPattern1 = /^[^\s@]+@[^0-9][^\s@]+\.[a-z]{2,}$/i; */
+  const emailPattern1 = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
 
 
 
   // Check if email is empty
-  if (email.value.trim() === "") {
+  /* if (email.value.trim() === "") {
     emailError.textContent = "Email is required";
     valid = false;
   }
@@ -74,7 +74,27 @@ loginForm.addEventListener("submit", (event) => {
   else if (!emailPattern.test(email.value.trim())) {
     emailError.textContent = "Please enter a valid email ending with .com, .net, .org, etc.";
     valid = false;
-  }
+  } */
+    if (email.value.trim() === "") {
+      emailError.textContent = "Email is required.";
+      valid = false;
+    } else if (!emailPattern1.test(email.value.trim())) {
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    } else if (email.value.includes("\\")) { // Check for backslash
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    } else if(email.value.includes("//")){
+      emailError.textContent = "Email is invalid.";
+      valid = false
+    }
+    else if (!emailPattern1.test(email.value.trim())) {
+      emailError.textContent = "Please enter a valid email.";
+      valid = false;
+    } else if (/@[0-9]/.test(email.value.trim())) { // Ensure domain doesn't start with a number
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    }
 
   // Check if password is empty
   if (password.value.trim() === "") {

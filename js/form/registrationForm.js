@@ -430,7 +430,6 @@ registrationForm.addEventListener("submit", async (event) => {
       emailError.textContent = "Email is invalid.";
       valid = false
     }
-    
     else if (!emailPattern1.test(email.value.trim())) {
       emailError.textContent = "Please enter a valid email.";
       valid = false;
