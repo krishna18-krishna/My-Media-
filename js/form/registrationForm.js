@@ -400,22 +400,39 @@ registrationForm.addEventListener("submit", async (event) => {
 
 
   // Email validation
-  if (email.value.trim() === "") {
+  /* if (email.value.trim() === "") {
     emailError.textContent = "Email is required.";
     valid = false;
-  } else if (!emailPattern.test(email.value.trim())) {
+  } else if (!emailPattern1.test(email.value.trim())) {
     emailError.textContent = "Email is invalid.";
     valid = false;
   } else if (!emailPattern1.test(email.value.trim())) {
     emailError.textContent = "Please enter a valid email.";
     valid = false;
   }
-  else if (!emailPattern.test(email.value.trim())){
+  else if (!emailPattern1.test(email.value.trim())){
     if(/@[0-9]/.test(email.value.trim())){
       emailError.textContent = "Email is invalid.";
       valid = false;
     }
-  }
+  } */
+
+    if (email.value.trim() === "") {
+      emailError.textContent = "Email is required.";
+      valid = false;
+    } else if (!emailPattern1.test(email.value.trim())) {
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    } else if (email.value.includes("\\")) { // Check for backslash
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    } else if (!emailPattern1.test(email.value.trim())) {
+      emailError.textContent = "Please enter a valid email.";
+      valid = false;
+    } else if (/@[0-9]/.test(email.value.trim())) { // Ensure domain doesn't start with a number
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    }
 
   // Username validation
   if (username.value.trim() === "") {
