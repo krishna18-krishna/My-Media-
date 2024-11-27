@@ -426,7 +426,12 @@ registrationForm.addEventListener("submit", async (event) => {
     } else if (email.value.includes("\\")) { // Check for backslash
       emailError.textContent = "Email is invalid.";
       valid = false;
-    } else if (!emailPattern1.test(email.value.trim())) {
+    } else if(email.value.includes("//")){
+      emailError.textContent = "Email is invalid.";
+      valid = false
+    }
+    
+    else if (!emailPattern1.test(email.value.trim())) {
       emailError.textContent = "Please enter a valid email.";
       valid = false;
     } else if (/@[0-9]/.test(email.value.trim())) { // Ensure domain doesn't start with a number
