@@ -90,6 +90,27 @@ function showLogoutAlert() {
     }
 }
 
+
+/* import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js"; 
+
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyC6fJyPKmyBrJizmkopfnlk2kb6cvs5cJM",
+    authDomain: "my-media-285c9.firebaseapp.com",
+    projectId: "my-media-285c9",
+    storageBucket: "my-media-285c9.firebasestorage.app",
+    messagingSenderId: "36523224799",
+    appId: "1:36523224799:web:5929b507b73581c69bc36a",
+    measurementId: "G-D26DKE6ZVG"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const analytics = getAnalytics(app); */
+
 // Hide logout alert and remove overlay and dialog
 function hideLogoutAlert() {
     const logoutAlert = document.getElementById("logout-alert");
@@ -110,7 +131,7 @@ function hideLogoutAlert() {
 
 
 // Fetch data and populate the list
-fetch("data.json")
+fetch("json/data.json")
     .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch JSON data");
         return response.json();
@@ -189,27 +210,24 @@ fetch("data.json")
 
     // Function to handle like click
  
-
-    // Function to handle like click
-function handleLikeClick(likeWrapper, likeCountElement, post) {
-    const isLiked = likeWrapper.dataset.liked === "true";
-
-    if (!isLiked) {
-        // Increment the like count if not already liked
-        likeWrapper.dataset.liked = "true"; // Mark as liked
-        likeWrapper.querySelector(".like-icon").style.filter = "hue-rotate(200deg)"; // Change to blue
-        post.media.like += 1; // Update the like count in the post data
-        likeCountElement.textContent = ` ${post.media.like}`; // Update the displayed count
-    } else {
-        // Decrement the like count if already liked
-        likeWrapper.dataset.liked = "false"; // Mark as not liked
-        likeWrapper.querySelector(".like-icon").style.filter = ""; // Reset the color
-        post.media.like -= 1; // Decrease the like count in the post data
-        likeCountElement.textContent = ` ${post.media.like}`; // Update the displayed count
+    function handleLikeClick(likeWrapper, likeCount, post) {
+        const likeImg = likeWrapper.querySelector(".like-icon");
+        const isLiked = likeWrapper.dataset.liked === "true";
+    
+        // Toggle like state
+        likeWrapper.dataset.liked = isLiked ? "false" : "true";
+    
+        // Update like image and count
+        if (isLiked) {
+            likeImg.src = post.media.likeImg || "default-like-icon.png"; // Default image
+            likeCount.textContent = ` ${post.media.like}`; // Reset to original like count
+        } else {
+            likeImg.src = "../assets/images/like-blue.png"; // Path to the new image
+            likeCount.textContent = ` ${parseInt(post.media.like) + 1}`; // Increment like count
+        }
     }
-}
-
-fetch("post.json")
+// Fetch data from post.json
+fetch("json/post.json")
     .then(response => {
         if (!response.ok) throw new Error("Failed to fetch JSON data");
         return response.json();
@@ -263,6 +281,7 @@ fetch("post.json")
                 postImg.alt = "Post Image";
                 postImg.className = "post-image";
                 postElement.appendChild(postImg);
+                /* iframe .src = post.user.postImage; */
             }
 
             // Media stats
@@ -326,6 +345,67 @@ fetch("post.json")
     })
     .catch((error) => console.error("Error loading or parsing JSON:", error));
 
+fetch("/json/friends.json") // Replace with the correct path to your JSON file
+    .then(response => {
+        if (!response.ok) throw new Error("Failed to fetch JSON data");
+        return response.json();
+    })
+    .then(data => {
+        const search = document.getElementById("search");
+        const dropdown = document.createElement("ul"); // Create a dropdown container
+        dropdown.classList.add("dropdown");
+        search.parentNode.appendChild(dropdown); // Append it below the search input
+
+        // Retrieve friends list from fetched data
+        const friends = data.friends || [];
+
+        // Search input event
+        search.addEventListener("input", () => {
+            const searchQuery = search.value.toLowerCase().trim();
+            dropdown.innerHTML = ""; // Clear previous dropdown entries
+
+            if (searchQuery === "") {
+                dropdown.style.display = "none"; // Hide dropdown if input is empty
+                return;
+            }
+
+            // Filter friends based on the query
+            const matchedFriends = friends.filter(friend =>
+                friend.toLowerCase().includes(searchQuery)
+            );
+
+            if (matchedFriends.length > 0) {
+                dropdown.style.display = "block"; // Show dropdown
+                matchedFriends.forEach(friend => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = friend;
+                    listItem.classList.add("dropdown-item");
+
+                    // Add click event to select the friend
+                    listItem.addEventListener("click", () => {
+                        search.value = friend; // Set input value to selected friend
+                        dropdown.style.display = "none"; // Hide dropdown
+                    });
+
+                    dropdown.appendChild(listItem); // Append to dropdown
+                });
+            } else {
+                const noResultsItem = document.createElement("li");
+                noResultsItem.textContent = "No friends found";
+                noResultsItem.classList.add("dropdown-item");
+                dropdown.appendChild(noResultsItem);
+                dropdown.style.display = "block"; // Show dropdown even for no results
+            }
+        });
+
+        // Hide dropdown when clicking outside the search bar
+        document.addEventListener("click", (event) => {
+            if (!search.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    })
+    .catch(error => console.error("Error loading or parsing JSON:", error));
 
 
     
