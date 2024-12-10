@@ -1,0 +1,200 @@
+/* *{
+    padding: 0;
+    margin: 0;
+    font-family: 'poppins', sans-serif ;
+}
+
+#nav-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+ .settings-icon img{
+    width: 50px;
+    margin-top: 10px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+.nav-right{
+    display: flex;
+}
+#username{
+    margin-left: 30px;
+    font-size: 30px;
+    margin-top: px;
+}
+
+.line{
+    border: 0.5px solid black;
+}
+#back-button{
+    margin-top: 5px;
+}
+#back-button i{
+    margin-left: 20px;
+    font-size: 25px;
+    cursor: pointer;
+}
+.container{
+    display: flex;
+    justify-content: space-around;
+    height: 100%;
+    width: 100%;
+}
+.line1{
+    border: 0.5px solid black;
+    height: 763px;
+}
+
+.profile-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 1000px;
+}
+.profile-image{
+   height: 100px;
+    /* margin-top: 100px;
+    margin-left: 150px; 
+}
+.profile-image-container{
+    height: 100%;
+    width: 100%;
+}
+/* .fullname{
+    font-size: 30px;
+    margin-left: 150px;
+    margin-top: 50px;
+}
+.edit-profile button{
+    padding: 10px 30px 10px 30px;
+    color: #fff;
+    background-color: #38b6ff;
+    border: #38b6ff;
+} 
+
+.create-post{
+    display: flex;
+}
+.create-post img{
+    height: 150px;
+    
+} */
+
+
+/* Global Styling */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Header Styling */
+#nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.settings-icon img {
+    width: 30px;
+    cursor: pointer;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+#username {
+    margin-left: 20px;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+#back-button i {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Line Divider */
+/* .line,
+.line1 {
+    border: 0.5px solid #ccc;
+    width: 100%;
+} */
+.line{
+    border: 0.5px solid black;
+}
+.line1{
+    border: 0.5px solid black;
+    height: 750px;
+}
+
+/* Container Styling */
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#profile-container {
+    text-align: center;
+    margin: 20px 200px;
+    margin-top: -200px;
+}
+
+.profile-image-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    gap: 10px;
+}
+
+.profile-image {
+    height: 150px;
+    width: 150px;
+
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.fullname {
+    font-size: 25px;
+    font-weight: bold;
+    color: #333;
+}
+
+.edit-profile button {
+    padding: 10px 20px;
+    background-color: #38b6ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 30px;
+}
+
+.edit-profile button:hover {
+    background-color: #007acc;
+}
+
+/* Create Post Section */
+.create-post {
+    margin-top: -500px;
+    margin-left:50px;
+}
+
+.create-post img {
+    width: 150px;
+    cursor: pointer;
+}

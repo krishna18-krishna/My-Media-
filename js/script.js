@@ -1,414 +1,260 @@
-// Toggle settings menu visibility
-function toggleMenu() {
+// Wait for the DOM to load fully
+document.addEventListener("DOMContentLoaded", function () {
+  // Show/hide settings menu
+  const userIcon = document.getElementById("userIcon");
+  if (userIcon) {
+    userIcon.addEventListener("click", toggleMenu);
+  }
+
+  function toggleMenu() {
     const settingsMenu = document.getElementById("settings-menu");
     if (settingsMenu) {
-        settingsMenu.style.display = settingsMenu.style.display === "block" ? "none" : "block";
+      settingsMenu.style.display =
+        settingsMenu.style.display === "block" ? "none" : "block";
     } else {
-        console.error("Element with ID 'settings-menu' not found.");
+      console.error("Element with ID 'settings-menu' not found.");
     }
-}
+  }
 
-// Close the settings menu when clicking outside of it
-document.addEventListener("click", function (event) {
+  // Close settings menu when clicking outside
+  document.addEventListener("click", function (event) {
     const settingsMenu = document.getElementById("settings-menu");
     const profileIcon = document.querySelector(".nav-user-icon img");
 
-    if (settingsMenu && profileIcon) {
-        if (!settingsMenu.contains(event.target) && event.target !== profileIcon) {
-            settingsMenu.style.display = "none";
-        }
-    } else {
-        console.error("Required elements ('settings-menu' or profile icon) not found.");
+    if (
+      settingsMenu &&
+      profileIcon &&
+      !settingsMenu.contains(event.target) &&
+      event.target !== profileIcon
+    ) {
+      settingsMenu.style.display = "none";
     }
+  });
+
+  // Show post creation form
+  window.showPostForm = function () {
+    const postForm = document.getElementById("post-form");
+    if (postForm) {
+      postForm.style.display = "block";
+    } else {
+      console.error("Post form not found.");
+    }
+  };
+
+  // Hide post creation form
+  window.hidePostForm = function () {
+    const postForm = document.getElementById("post-form");
+    if (postForm) {
+      postForm.style.display = "none";
+      clearForm(); // Clear the form when hiding
+    } else {
+      console.error("Post form not found.");
+    }
+  };
+
+  // Handle media upload (images only for preview)
+  const mediaInput = document.getElementById("post-media");
+  const imagePreview = document.getElementById("imagePreview");
+
+  mediaInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+
+    if (file && file.type.startsWith("image")) {
+      const reader = new FileReader();
+
+      reader.onloadend = function () {
+        const mediaDataUrl = reader.result;
+
+        // Save to localStorage
+        localStorage.setItem("uploadedMedia", mediaDataUrl);
+
+        // Display media preview
+        imagePreview.src = mediaDataUrl;
+        imagePreview.style.display = "block"; // Ensure it's visible
+      };
+
+      reader.readAsDataURL(file); // Convert file to Base64
+    } else {
+      alert("Please upload a valid image file.");
+      imagePreview.src = ""; // Clear preview if invalid
+      imagePreview.style.display = "none";
+    }
+  });
+
+  // Submit post
+  window.submitPost = function () {
+    const postContent = document.getElementById("post-content").value.trim();
+    const postImageSrc = imagePreview.src;
+
+    if (!postContent && (!postImageSrc || postImageSrc === "#")) {
+      alert("Please add some text or upload an image.");
+      return;
+    }
+
+    const postContainer = document.getElementById("post-container");
+    const postDiv = document.createElement("div");
+    postDiv.classList.add("post");
+    postDiv.style.border = "1px solid #ccc";
+    postDiv.style.borderRadius = "5px";
+    postDiv.style.margin = "10px 0";
+    postDiv.style.padding = "10px";
+
+    // Add post header (Profile image, username, date & time)
+    const postHeader = document.createElement("div");
+    postHeader.classList.add("post-header");
+    postHeader.style.display = "flex";
+    postHeader.style.alignItems = "center";
+    postHeader.style.marginBottom = "10px";
+
+    const profileImage = document.createElement("img");
+    profileImage.src = "assets/images/profile-pic.jpg"; // Replace with actual profile image URL
+    profileImage.alt = "Profile Picture";
+    profileImage.style.width = "40px";
+    profileImage.style.height = "40px";
+    profileImage.style.borderRadius = "50%";
+    profileImage.style.marginRight = "10px";
+
+    const userInfo = document.createElement("div");
+    userInfo.style.display = "flex";
+    userInfo.style.flexDirection = "column";
+
+    const username = document.createElement("span");
+    username.textContent = "John Doe"; // Replace with the actual username
+    username.style.fontWeight = "bold";
+
+
+
+    
+    const timestamp = document.createElement("span");
+    const now = new Date();
+
+// Get the date in DD/MM/YY format
+const day = String(now.getDate()).padStart(2, '0');
+const month = String(now.getMonth() + 1).padStart(2, '0');
+const year = String(now.getFullYear()).slice(-2);
+
+// Get the time in 12-hour format
+let hours = now.getHours();
+const minutes = String(now.getMinutes()).padStart(2, '0');
+
+// Determine AM or PM
+const period = hours >= 12 ? 'PM' : 'AM';
+
+// Convert to 12-hour format
+hours = hours % 12 || 12; // Adjust hours for 12-hour format
+
+// Format the timestamp
+timestamp.textContent = `${day}/${month}/${year} ${hours}:${minutes} ${period}`;
+
+    
+
+    timestamp.style.fontSize = "12px";
+    timestamp.style.color = "#555";
+
+    userInfo.appendChild(username);
+    userInfo.appendChild(timestamp);
+    postHeader.appendChild(profileImage);
+    postHeader.appendChild(userInfo);
+
+    // Add post content
+    if (postContent) {
+      const postText = document.createElement("p");
+      postText.textContent = postContent;
+      postText.style.marginTop = "10px";
+      postDiv.appendChild(postText);
+    }
+
+    // Add uploaded image
+    if (postImageSrc && postImageSrc !== "#") {
+      const postImage = document.createElement("img");
+      postImage.src = postImageSrc;
+      postImage.alt = "Uploaded Image";
+      postImage.style.maxWidth = "100%";
+      postImage.style.marginTop = "10px";
+      postDiv.appendChild(postImage);
+    }
+
+    // Append header and body to the post
+    postDiv.prepend(postHeader); // Ensure profile section is first
+    postContainer.prepend(postDiv);
+
+    // Clear form after posting
+    clearForm();
+    hidePostForm();
+  };
+
+  // Clear form fields
+  function clearForm() {
+    document.getElementById("post-content").value = "";
+    mediaInput.value = "";
+    imagePreview.src = "#";
+    imagePreview.style.display = "none";
+  }
+
+  // Load media from localStorage on page load
+  function loadMediaFromStorage() {
+    const mediaDataUrl = localStorage.getItem("uploadedMedia");
+    if (mediaDataUrl) {
+      imagePreview.src = mediaDataUrl;
+      imagePreview.style.display = "block"; // Display preview
+    }
+  }
+
+  // Call the function on page load
+  loadMediaFromStorage();
+
+  // Add "Add Post" button at the bottom of the page
+  const addPostButton = document.createElement("button");
+  addPostButton.textContent = "Add Post";
+  addPostButton.id = "add-post-button";
+  addPostButton.style.position = "fixed";
+  addPostButton.style.bottom = "20px";
+  addPostButton.style.right = "20px";
+  addPostButton.style.padding = "10px 20px";
+  addPostButton.style.backgroundColor = "#007bff";
+  addPostButton.style.color = "#fff";
+  addPostButton.style.border = "none";
+  addPostButton.style.borderRadius = "5px";
+  addPostButton.style.cursor = "pointer";
+
+  // Append the button to the body
+  document.body.appendChild(addPostButton);
+
+  // Attach the click event to show the post form
+  addPostButton.addEventListener("click", function () {
+    showPostForm();
+  });
+
+  // Show logout alert
+  window.showLogoutAlert = function () {
+    const logoutAlert = document.getElementById("logout-alert");
+    if (logoutAlert) {
+      logoutAlert.style.display = "block";
+    } else {
+      console.error("Logout alert element not found.");
+    }
+  };
+
+  // Hide logout alert
+  window.hideLogoutAlert = function () {
+    const logoutAlert = document.getElementById("logout-alert");
+    if (logoutAlert) {
+      logoutAlert.style.display = "none";
+    } else {
+      console.error("Logout alert element not found.");
+    }
+  };
+
+  // Logout action
+  window.logout = function () {
+    console.log("User logged out!");
+    hideLogoutAlert();
+    window.location.href = "../index.html"; // Redirect to the login page
+  };
 });
 
-/* // Show logout alert
-function showLogoutAlert() {
-    const logoutAlert = document.getElementById("logout-alert");
-    if (logoutAlert) {
-        logoutAlert.style.display = "block";
-    } else {
-        console.error("Element with ID 'logout-alert' not found.");
-    }
-}
 
-// Hide logout alert
-function hideLogoutAlert() {
-    const logoutAlert = document.getElementById("logout-alert");
-    if (logoutAlert) {
-        logoutAlert.style.display = "none";
-    } else {
-        console.error("Element with ID 'logout-alert' not found.");
-    }
-} */
-
-// Logout and redirect to login page
-function logout() {
-
-    const settingsMenu = document.getElementById("settings-menu");
-    if (settingsMenu) {
-        settingsMenu.style.display = "none";
-    }
-    window.location.href = "./index.html"; // Replace 'index.html' with the correct path to your login page
-}
-
-
-// Show logout alert
-function showLogoutAlert() {
-    const logoutAlert = document.getElementById("logout-alert");
-    if (logoutAlert) {
-        logoutAlert.style.display = "block";
-        
-        // Create and display the overlay
-        const overlay = document.createElement("div");
-        overlay.setAttribute("class", "overlay");
-        overlay.classList.add("overlay");
-        document.body.appendChild(overlay);
-
-        // Create the confirmation dialog
-        const confirmationDialog = document.createElement("div");
-        confirmationDialog.setAttribute("id", "confirmation-dialog");
-        confirmationDialog.classList.add("confirmation-dialog");
-        confirmationDialog.innerHTML = `
-            <div class="confirmation-message">
-                Are you sure you want to log out?
-            </div>
-            <button id="confirm-logout">Yes</button>
-            <button id="cancel-logout">No</button>
-        `;
-
-        // Append the confirmation dialog to the body
-        document.body.appendChild(confirmationDialog);
-
-        // Event listener for the 'Yes' button to log out
-        document.getElementById("confirm-logout").addEventListener("click", logout);
-
-        // Event listener for the 'No' button to close the dialog
-        document.getElementById("cancel-logout").addEventListener("click", hideLogoutAlert);
-    } else {
-        console.error("Element with ID 'logout-alert' not found.");
-    }
-}
-
-
-/* import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js"; 
-
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyC6fJyPKmyBrJizmkopfnlk2kb6cvs5cJM",
-    authDomain: "my-media-285c9.firebaseapp.com",
-    projectId: "my-media-285c9",
-    storageBucket: "my-media-285c9.firebasestorage.app",
-    messagingSenderId: "36523224799",
-    appId: "1:36523224799:web:5929b507b73581c69bc36a",
-    measurementId: "G-D26DKE6ZVG"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const analytics = getAnalytics(app); */
-
-// Hide logout alert and remove overlay and dialog
-function hideLogoutAlert() {
-    const logoutAlert = document.getElementById("logout-alert");
-    const overlay = document.getElementById("overlay");
-    const confirmationDialog = document.getElementById("confirmation-dialog");
-
-    if (logoutAlert) {
-        logoutAlert.style.display = "none";
-    }
-    if (overlay) {
-        document.body.removeChild(overlay);
-    }
-    if (confirmationDialog) {
-        document.body.removeChild(confirmationDialog);
-    }
-}
-
-
-
-// Fetch data and populate the list
-fetch("json/data.json")
-    .then((response) => {
-        if (!response.ok) throw new Error("Failed to fetch JSON data");
-        return response.json();
-    })
-    .then((data) => {
-        const storyContainer = document.getElementById("story-container");
-
-        if (!storyContainer || !Array.isArray(data.stories)) {
-            console.error("'story-container' not found or invalid data format");
-            return;
-        }
-
-        data.stories.forEach((story) => {
-            const storyElement = document.createElement("div");
-            storyElement.className = "story";
-
-            // Set the first image in media as the background
-            if (Array.isArray(story.media)) {
-                const backgroundMedia = story.media.find((media) => media.type === "image");
-                if (backgroundMedia && backgroundMedia.src) {
-                    storyElement.style.backgroundImage = `url('${backgroundMedia.src}')`;
-                    storyElement.style.backgroundSize = "cover";
-                    storyElement.style.backgroundPosition = "center";
-                }
-            }
-
-            // Add profile picture
-            if (story.usar && story.usar.profilePicture) {
-                const profileImg = document.createElement("img");
-                profileImg.src = story.usar.profilePicture;
-                profileImg.alt = "Profile Picture";
-                profileImg.className = "profile-picture";
-                storyElement.appendChild(profileImg);
-            }
-
-            // Add media items
-            story.media.forEach((media) => {
-                if (media.type === "image" && media.src) {
-                    const img = document.createElement("img");
-                    img.src = media.src;
-                    img.alt = "Image";
-                    img.className = "story-media";
-                    img.style.display = "none"; // Hide since background image is already set
-
-                    storyElement.appendChild(img);
-                } else if (media.type === "video" && media.src) {
-                    const iframe = document.createElement("iframe");
-                    iframe.src = media.src.replace("watch?v=", "embed/"); // Ensure proper embed URL for YouTube
-                    iframe.allowFullscreen = true;
-                    iframe.style.display = "none"; // Initially hidden
-
-                    // Click event on the story element to show the video
-                    storyElement.addEventListener("click", () => {
-                        iframe.style.display = "block"; // Show the video
-                        iframe.requestFullscreen(); // Fullscreen the video
-                    });
-
-                    // Event to handle exiting fullscreen
-                    document.addEventListener("fullscreenchange", () => {
-                        if (!document.fullscreenElement) {
-                            iframe.style.display = "none"; // Hide the video
-                        }
-                    });
-
-                    storyElement.appendChild(iframe);
-                }
-            });
-
-            storyContainer.appendChild(storyElement);
-        });
-    })
-    .catch((error) => console.error("Error loading or parsing JSON:", error));
-
-
- 
-
-    // Function to handle like click
- 
-    function handleLikeClick(likeWrapper, likeCount, post) {
-        const likeImg = likeWrapper.querySelector(".like-icon");
-        const isLiked = likeWrapper.dataset.liked === "true";
-    
-        // Toggle like state
-        likeWrapper.dataset.liked = isLiked ? "false" : "true";
-    
-        // Update like image and count
-        if (isLiked) {
-            likeImg.src = post.media.likeImg || "default-like-icon.png"; // Default image
-            likeCount.textContent = ` ${post.media.like}`; // Reset to original like count
-        } else {
-            likeImg.src = "../assets/images/like-blue.png"; // Path to the new image
-            likeCount.textContent = ` ${parseInt(post.media.like) + 1}`; // Increment like count
-        }
-    }
-// Fetch data from post.json
-fetch("json/post.json")
-    .then(response => {
-        if (!response.ok) throw new Error("Failed to fetch JSON data");
-        return response.json();
-    })
-    .then((data) => {
-        const postContainer = document.getElementById("post-container");
-
-        if (!postContainer || !Array.isArray(data.posts)) {
-            console.error("'post-container' not found or invalid data format");
-            return;
-        }
-
-        data.posts.forEach((post) => {
-            const postElement = document.createElement("div");
-            postElement.className = "post";
-
-            // User profile and name
-            const userSection = document.createElement("div");
-            userSection.className = "user-section";
-
-            if (post.user.profilePicture) {
-                const profileImg = document.createElement("img");
-                profileImg.src = post.user.profilePicture;
-                profileImg.alt = "User Profile Picture";
-                profileImg.className = "profile-picture";
-                userSection.appendChild(profileImg);
-            }
-
-            const userName = document.createElement("span");
-            userName.className = "user-name";
-            userName.textContent = post.user.name || "Anonymous";
-            userSection.appendChild(userName);
-
-            const dateTime = document.createElement("span");
-            dateTime.className = "post-date-time";
-            dateTime.textContent = `${post.user.dateTime.date || ""} ${post.user.dateTime.time || ""}`;
-            userSection.appendChild(dateTime);
-
-            postElement.appendChild(userSection);
-
-            // Post content
-            const contentSection = document.createElement("div");
-            contentSection.className = "content-section";
-            contentSection.textContent = post.user.content || "No content available.";
-            postElement.appendChild(contentSection);
-
-            // Post image
-            if (post.user.postImage) {
-                const postImg = document.createElement("img");
-                postImg.src = post.user.postImage;
-                postImg.alt = "Post Image";
-                postImg.className = "post-image";
-                postElement.appendChild(postImg);
-                /* iframe .src = post.user.postImage; */
-            }
-
-            // Media stats
-            const mediaStats = document.createElement("div");
-            mediaStats.className = "media-stats";
-
-            // Like
-            const likeWrapper = document.createElement("div");
-            likeWrapper.className = "like-wrapper";
-            likeWrapper.dataset.liked = ""; // Initialize as not liked
-            const likeImg = document.createElement("img");
-            likeImg.src = post.media.likeImg || "default-like-icon.png";
-            likeImg.alt = "Like";
-            likeImg.className = "like-icon";
-            likeWrapper.appendChild(likeImg);
-            const likeCount = document.createElement("span");
-            likeCount.className = "like-count";
-            likeCount.textContent = ` ${post.media.like}`;
-            likeWrapper.appendChild(likeCount);
-
-            
-
-            // Event listener for the like button
-            likeWrapper.addEventListener("click", () => handleLikeClick(likeWrapper, likeCount, post));
-
-            mediaStats.appendChild(likeWrapper);
-            // Share
-            const shareWrapper = document.createElement("div");
-            shareWrapper.className = "share-wrapper";
-            const shareImg = document.createElement("img");
-            shareImg.src = post.media.shareImg || "default-share-icon.png";
-            shareImg.alt = "Share";
-            shareImg.className = "share-icon";
-            shareWrapper.appendChild(shareImg);
-            const shareCount = document.createElement("span");
-            shareCount.className = "share-count";
-            shareCount.textContent = ` ${post.media.share}`;
-            shareWrapper.appendChild(shareCount);
-            mediaStats.appendChild(shareWrapper);
-
-            // Comment
-            const commentWrapper = document.createElement("div");
-            commentWrapper.className = "comment-wrapper";
-            const commentImg = document.createElement("img");
-            commentImg.src = post.media.commentImg || "default-comment-icon.png";
-            commentImg.alt = "Comment";
-            commentImg.className = "comment-icon";
-            commentWrapper.appendChild(commentImg);
-            const commentCount = document.createElement("span");
-            commentCount.className = "comment-count";
-            commentCount.textContent = ` ${post.media.comment}`;
-            commentWrapper.appendChild(commentCount);
-            mediaStats.appendChild(commentWrapper);
-
-            // Append media stats
-            postElement.appendChild(mediaStats);
-
-            // Append the post to the container
-            postContainer.appendChild(postElement);
-        });
-    })
-    .catch((error) => console.error("Error loading or parsing JSON:", error));
-
-fetch("/json/friends.json") // Replace with the correct path to your JSON file
-    .then(response => {
-        if (!response.ok) throw new Error("Failed to fetch JSON data");
-        return response.json();
-    })
-    .then(data => {
-        const search = document.getElementById("search");
-        const dropdown = document.createElement("ul"); // Create a dropdown container
-        dropdown.classList.add("dropdown");
-        search.parentNode.appendChild(dropdown); // Append it below the search input
-
-        // Retrieve friends list from fetched data
-        const friends = data.friends || [];
-
-        // Search input event
-        search.addEventListener("input", () => {
-            const searchQuery = search.value.toLowerCase().trim();
-            dropdown.innerHTML = ""; // Clear previous dropdown entries
-
-            if (searchQuery === "") {
-                dropdown.style.display = "none"; // Hide dropdown if input is empty
-                return;
-            }
-
-            // Filter friends based on the query
-            const matchedFriends = friends.filter(friend =>
-                friend.toLowerCase().includes(searchQuery)
-            );
-
-            if (matchedFriends.length > 0) {
-                dropdown.style.display = "block"; // Show dropdown
-                matchedFriends.forEach(friend => {
-                    const listItem = document.createElement("li");
-                    listItem.textContent = friend;
-                    listItem.classList.add("dropdown-item");
-
-                    // Add click event to select the friend
-                    listItem.addEventListener("click", () => {
-                        search.value = friend; // Set input value to selected friend
-                        dropdown.style.display = "none"; // Hide dropdown
-                    });
-
-                    dropdown.appendChild(listItem); // Append to dropdown
-                });
-            } else {
-                const noResultsItem = document.createElement("li");
-                noResultsItem.textContent = "No friends found";
-                noResultsItem.classList.add("dropdown-item");
-                dropdown.appendChild(noResultsItem);
-                dropdown.style.display = "block"; // Show dropdown even for no results
-            }
-        });
-
-        // Hide dropdown when clicking outside the search bar
-        document.addEventListener("click", (event) => {
-            if (!search.contains(event.target) && !dropdown.contains(event.target)) {
-                dropdown.style.display = "none";
-            }
-        });
-    })
-    .catch(error => console.error("Error loading or parsing JSON:", error));
-
-
-    
+// media stars
 
 
 

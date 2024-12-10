@@ -6,17 +6,92 @@
     <title>My-media-Profile</title>
     <link rel="stylesheet" href="./css/profile.css">
     <link rel="icon" href="./assets/images/ic_logo-2.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" 
+    integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" 
+    referrerpolicy="no-referrer" />
+</head>
+<body>
+    <!-- <header>
+        <nav id="nav-header">
+            <div class="nav-right">
+                <div id="back-button">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </div>
+                <div id="username" class="username"></div>
+            </div>
+            <div class="settings-icon">
+                <img src="./assets/images/setting-icon.png" alt="Settings">
+            </div>
+        </nav>
+        <div class="line"></div>
+    </header>
+    <div class="container">
+        <div id="profile-container">
+            <div class="profile-image-container">
+                <img class="profile-image" src="./assets/images/profile-pic.jpg" alt="Profile Picture">
+                <div class="fullname" id="fullname"></div>
+                <div class="edit-profile">
+                    <button type="uploadButton" id="edit-profile-button">Edit Profile</button>
+                </div>
+            </div>
+        </div>
+        <div class="line1"></div>
+        <div class="create-post">
+            <div class="create-post-container" id="uploadPost">
+                <img src="./assets/images/plus_icon.png" alt="Create Post">
+            </div>
+        </div>
+    </div> -->
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My-media-Profile</title>
+    <link rel="stylesheet" href="./css/profile.css">
+    <link rel="icon" href="./assets/images/ic_logo-2.png">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" 
+    integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4p889k5T5Ju8fs4b1P5z/iB4nMfSQ==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
 </head>
 <body>
     <header>
         <nav id="nav-header">
-            <div id="username"></div>
+            <div class="nav-right">
+                <div id="back-button">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </div>
+                <div id="username" class="username"></div>
+            </div>
             <div class="settings-icon">
-                <img src="./assets/images/setting-icon.png" alt="">
+                <img src="./assets/images/setting-icon.png" alt="Settings">
             </div>
         </nav>
+        <div class="line"></div>
     </header>
-    <div id="profile-container"></div>
+    <div class="container">
+        <div id="profile-container">
+            <div class="profile-image-container">
+                <img class="profile-image" src="./assets/images/profile-pic.jpg" alt="Profile Picture" id="profileImagePreview">
+                <div class="fullname" id="fullname"></div>
+                <div class="edit-profile">
+                    <button id="uploadButton">Edit Profile</button>
+                    <input type="file" id="fileInput" style="display:none;" accept="image/*" />
+                    <div id="uploadStatus"></div>
+                </div>
+            </div>
+        </div>
+        <div class="line1"></div>
+        <div class="create-post">
+            <div class="create-post-container" id="uploadPost">
+                <img src="./assets/images/plus_icon.png" alt="Create Post">
+            </div>
+        </div>
+    </div>
+    <div id="uploadedImagePreview"></div>
+    <script src="./js/profile.js" type="module"></script>
 </body>
-<script src="./js/profile.js" type="module" ></script>
 </html>

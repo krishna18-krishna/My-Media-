@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My media</title>
+    <title>My Media</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" href="assets/images/ic_logo-2.png">
 </head>
 <body>
-    
-
     <nav>
         <div class="nav-left">
             <div class="logo">
@@ -29,7 +27,8 @@
                 <input type="search" placeholder="Search" id ="search">
             </div>
             <div class="nav-user-icon online">
-                <a href="#"><img src="assets/images/profile-pic.jpg" alt="Profile" onclick="toggleMenu()"></a>
+                <a href="#"><img src="assets/images/profile-pic.jpg" alt="Profile" id="userIcon" onclick="toggleMenu()"></a>
+
  
                 <!------------------ Settings-menu --------------------->
             <!-- <div class="nav-user-icon online">
@@ -42,29 +41,37 @@
                     <a href="#" id="logout1" onclick="showLogoutAlert()">Logout</a>
                 </div>
             </div>
-
-
     </nav>
 
-        <div class="container">
-            <div class="main-content"> 
-                <div id="story-container"></div>
-                <div id="post-container"></div>
+    <div class="container">
+        
+        <div class="main-content"> 
+            <div class="stories">
+                
+            </div> 
+            <div id="post-form" style="display:none;">
+                <textarea id="post-content" placeholder="Write something..." style=" margin-top: 10px; width: 600px; height: 100px; margin-left: 10px;"></textarea>
+                <!-- Remove the inline "onchange" event and add it via JS -->
+                <input type="file" id="post-media" accept="image/*, video/*" >
+                <button onclick="submitPost()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px;">Post</button>
+                <button onclick="hidePostForm()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px;">Cancel</button>
+                <img src="#" alt="" id="imagePreview">
+                <div class="media-stars">
+                    
+                </div>
             </div>
+            <div id="post-container"></div>
         </div>
-         <div id="logout-alert" class="logout-alert" style="display: none;">
-            <h1 class="alert-content">Are you sure you want to logout?</h1>
-            <div class="button">
-               <button class="yes" type="button" onclick="logout()"><a href="#">Yes</a></button>
-               <button class="no" type="button" onclick="hideLogoutAlert()"><a href="#">No</a></button>
-            </div>
+    </div>
+
+    <div id="logout-alert" class="logout-alert" style="display: none;">
+        <h1 class="alert-content">Are you sure you want to logout?</h1>
+        <div class="button">
+            <button class="yes" type="button" onclick="logout()">Yes</button>
+            <button class="no" type="button" onclick="hideLogoutAlert()">No</button>
         </div>
+    </div>
 
-
-
-
-
-
-<script src="js/script.js" ></script>
+    <script src="./js/script.js" defer></script> <!-- Make sure defer is added for proper loading order -->
 </body>
 </html>
