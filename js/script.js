@@ -1,6 +1,39 @@
-// Wait for the DOM to load fully
-document.addEventListener("DOMContentLoaded", function () {
-  // Show/hide settings menu
+// Import Firebase services
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+// Import Supabase from CDN
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.27.0/+esm"; 
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyC6fJyPKmyBrJizmkopfnlk2kb6cvs5cJM",
+  authDomain: "my-media-285c9.firebaseapp.com",
+  projectId: "my-media-285c9",
+  storageBucket: "my-media-285c9.appspot.com",
+  messagingSenderId: "36523224799",
+  appId: "1:36523224799:web:5929b507b73581c69bc36a",
+  measurementId: "G-D26DKE6ZVG",
+};
+
+// Supabase configuration
+const supabaseUrl = "https://fwqpzgoprwvmvgmbivac.supabase.co";
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cXB6Z29wcnd2bXZnbWJpdmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM4Mjk1NDEsImV4cCI6MjA0OTQwNTU0MX0.q9avx0jhYYVCch89S0GAtk2fJMhKbxxMHa6Qu7sktP4";
+
+// Initialize Firebase and Supabase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const supabase = createClient(supabaseUrl, supabaseKey);
+console.log(supabase)
+
+// DOM content loaded event
+document.addEventListener("DOMContentLoaded", () => {
+  fetchAllPosts();
+
+  // setting menu
   const userIcon = document.getElementById("userIcon");
   if (userIcon) {
     userIcon.addEventListener("click", toggleMenu);
@@ -31,28 +64,79 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Show post creation form
-  window.showPostForm = function () {
-    const postForm = document.getElementById("post-form");
-    if (postForm) {
-      postForm.style.display = "block";
-    } else {
-      console.error("Post form not found.");
-    }
-  };
 
-  // Hide post creation form
-  window.hidePostForm = function () {
-    const postForm = document.getElementById("post-form");
-    if (postForm) {
-      postForm.style.display = "none";
-      clearForm(); // Clear the form when hiding
-    } else {
-      console.error("Post form not found.");
-    }
-  };
+  let currentUsername = "Guest"; // Fallback username
 
-  // Handle media upload (images only for preview)
+  // Fetch username dynamically after authentication
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userId = user.uid;
+      try {
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          currentUsername = userDoc.data().username || "Guest";
+        } else {
+          console.error("No user document found in Firestore.");
+        }
+      } catch (error) {
+        console.error("Error fetching username from Firestore:", error);
+      }
+    } else {
+      console.log("No user is currently signed in.");
+    }
+  });
+
+  // Clear form function
+  function clearForm() {
+    document.getElementById("post-content").value = "";
+    document.getElementById("post-media").value = "";
+    document.getElementById("imagePreview").src = "#";
+    document.getElementById("imagePreview").style.display = "none";
+  }
+
+
+
+// Submit post to Supabase
+async function submitPost() {
+  const postContent = document.getElementById("post-content").value.trim();
+  const postImageSrc = document.getElementById("imagePreview").src;
+
+  if (!postContent && (!postImageSrc || postImageSrc === "#")) {
+    alert("Please add some text or upload an image.");
+    return;
+  }
+
+  
+
+  try {
+    // Log the input before sending
+    console.log("Submitting post with content:", postContent);
+    console.log("Submitting post with imageSrc:", postImageSrc);
+
+    // Insert into Supabase
+    const { data, error } = await supabase
+      .from("posts") // Ensure this matches your table name
+      .insert([{ content: postContent, imageSrc: postImageSrc, author: currentUsername }]).select(); // Ensure column names match
+
+    if (error) {
+      console.error("Error storing post in Supabase:", error.message);
+    } else {
+      console.log("Post stored successfully in Supabase:", data);
+    }
+  } catch (err) {
+    console.error("Error submitting post:", err.message);
+  }
+  fetchAllPosts()
+
+  clearForm();
+}
+
+// Attach function to the window for global access
+window.submitPost = submitPost;
+
+
+  // Handle media upload
   const mediaInput = document.getElementById("post-media");
   const imagePreview = document.getElementById("imagePreview");
 
@@ -61,149 +145,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (file && file.type.startsWith("image")) {
       const reader = new FileReader();
-
       reader.onloadend = function () {
         const mediaDataUrl = reader.result;
-
-        // Save to localStorage
-        localStorage.setItem("uploadedMedia", mediaDataUrl);
-
-        // Display media preview
         imagePreview.src = mediaDataUrl;
-        imagePreview.style.display = "block"; // Ensure it's visible
+        imagePreview.style.display = "block";
       };
-
-      reader.readAsDataURL(file); // Convert file to Base64
+      reader.readAsDataURL(file);
     } else {
       alert("Please upload a valid image file.");
-      imagePreview.src = ""; // Clear preview if invalid
+      imagePreview.src = "";
       imagePreview.style.display = "none";
     }
   });
 
-  // Submit post
-  window.submitPost = function () {
-    const postContent = document.getElementById("post-content").value.trim();
-    const postImageSrc = imagePreview.src;
-
-    if (!postContent && (!postImageSrc || postImageSrc === "#")) {
-      alert("Please add some text or upload an image.");
-      return;
-    }
-
-    const postContainer = document.getElementById("post-container");
-    const postDiv = document.createElement("div");
-    postDiv.classList.add("post");
-    postDiv.style.border = "1px solid #ccc";
-    postDiv.style.borderRadius = "5px";
-    postDiv.style.margin = "10px 0";
-    postDiv.style.padding = "10px";
-
-    // Add post header (Profile image, username, date & time)
-    const postHeader = document.createElement("div");
-    postHeader.classList.add("post-header");
-    postHeader.style.display = "flex";
-    postHeader.style.alignItems = "center";
-    postHeader.style.marginBottom = "10px";
-
-    const profileImage = document.createElement("img");
-    profileImage.src = "assets/images/profile-pic.jpg"; // Replace with actual profile image URL
-    profileImage.alt = "Profile Picture";
-    profileImage.style.width = "40px";
-    profileImage.style.height = "40px";
-    profileImage.style.borderRadius = "50%";
-    profileImage.style.marginRight = "10px";
-
-    const userInfo = document.createElement("div");
-    userInfo.style.display = "flex";
-    userInfo.style.flexDirection = "column";
-
-    const username = document.createElement("span");
-    username.textContent = "John Doe"; // Replace with the actual username
-    username.style.fontWeight = "bold";
-
-
-
-    
-    const timestamp = document.createElement("span");
-    const now = new Date();
-
-// Get the date in DD/MM/YY format
-const day = String(now.getDate()).padStart(2, '0');
-const month = String(now.getMonth() + 1).padStart(2, '0');
-const year = String(now.getFullYear()).slice(-2);
-
-// Get the time in 12-hour format
-let hours = now.getHours();
-const minutes = String(now.getMinutes()).padStart(2, '0');
-
-// Determine AM or PM
-const period = hours >= 12 ? 'PM' : 'AM';
-
-// Convert to 12-hour format
-hours = hours % 12 || 12; // Adjust hours for 12-hour format
-
-// Format the timestamp
-timestamp.textContent = `${day}/${month}/${year} ${hours}:${minutes} ${period}`;
-
-    
-
-    timestamp.style.fontSize = "12px";
-    timestamp.style.color = "#555";
-
-    userInfo.appendChild(username);
-    userInfo.appendChild(timestamp);
-    postHeader.appendChild(profileImage);
-    postHeader.appendChild(userInfo);
-
-    // Add post content
-    if (postContent) {
-      const postText = document.createElement("p");
-      postText.textContent = postContent;
-      postText.style.marginTop = "10px";
-      postDiv.appendChild(postText);
-    }
-
-    // Add uploaded image
-    if (postImageSrc && postImageSrc !== "#") {
-      const postImage = document.createElement("img");
-      postImage.src = postImageSrc;
-      postImage.alt = "Uploaded Image";
-      postImage.style.maxWidth = "100%";
-      postImage.style.marginTop = "10px";
-      postDiv.appendChild(postImage);
-    }
-
-    // Append header and body to the post
-    postDiv.prepend(postHeader); // Ensure profile section is first
-    postContainer.prepend(postDiv);
-
-    // Clear form after posting
-    clearForm();
-    hidePostForm();
-  };
-
-  // Clear form fields
-  function clearForm() {
-    document.getElementById("post-content").value = "";
-    mediaInput.value = "";
-    imagePreview.src = "#";
-    imagePreview.style.display = "none";
-  }
-
-  // Load media from localStorage on page load
-  function loadMediaFromStorage() {
-    const mediaDataUrl = localStorage.getItem("uploadedMedia");
-    if (mediaDataUrl) {
-      imagePreview.src = mediaDataUrl;
-      imagePreview.style.display = "block"; // Display preview
-    }
-  }
-
-  // Call the function on page load
-  loadMediaFromStorage();
-
-  // Add "Add Post" button at the bottom of the page
+  // Add "Add Post" button
   const addPostButton = document.createElement("button");
   addPostButton.textContent = "Add Post";
   addPostButton.id = "add-post-button";
@@ -220,12 +175,45 @@ timestamp.textContent = `${day}/${month}/${year} ${hours}:${minutes} ${period}`;
   // Append the button to the body
   document.body.appendChild(addPostButton);
 
-  // Attach the click event to show the post form
+  // Show post form
+  window.showPostForm = function () {
+    const postForm = document.getElementById("post-form");
+    if (postForm) {
+      console.log("Showing post form.");
+      postForm.style.display = "block";
+    } else {
+      console.error("Post form not found.");
+    }
+  };
+
+  // Hide post form
+  window.hidePostForm = function () {
+    const postForm = document.getElementById("post-form");
+    if (postForm) {
+      console.log("Hiding post form.");
+      postForm.style.display = "none";
+      clearForm();
+    } else {
+      console.error("Post form not found.");
+    }
+  };
+
+  // Attach event listener to the button
   addPostButton.addEventListener("click", function () {
+    console.log("Add Post button clicked.");
     showPostForm();
   });
 
-  // Show logout alert
+  // Submit post on button click
+  document.addEventListener("DOMContentLoaded", () => {
+    const submitButton = document.getElementById("submit-post");
+    if (submitButton) {
+      submitButton.addEventListener("click", submitPost);
+    } else {
+      console.error("Submit button not found.");
+    }
+  });
+
   window.showLogoutAlert = function () {
     const logoutAlert = document.getElementById("logout-alert");
     if (logoutAlert) {
@@ -235,7 +223,6 @@ timestamp.textContent = `${day}/${month}/${year} ${hours}:${minutes} ${period}`;
     }
   };
 
-  // Hide logout alert
   window.hideLogoutAlert = function () {
     const logoutAlert = document.getElementById("logout-alert");
     if (logoutAlert) {
@@ -245,7 +232,6 @@ timestamp.textContent = `${day}/${month}/${year} ${hours}:${minutes} ${period}`;
     }
   };
 
-  // Logout action
   window.logout = function () {
     console.log("User logged out!");
     hideLogoutAlert();
@@ -254,7 +240,134 @@ timestamp.textContent = `${day}/${month}/${year} ${hours}:${minutes} ${period}`;
 });
 
 
-// media stars
+// Example: Fetching all data from the "posts" table
+async function fetchAllPosts() {
+
+  document.getElementById("post-form").style.display="none"
+  let { data, error } = await supabase
+    .from("posts") // Replace "posts" with your table name
+    .select("*"); // Select all columns; you can specify column names if needed
+    const postContainer = document.getElementById("post-container");
+    postContainer.innerHTML=""
+  if (error) {
+    console.error("Error fetching posts:", error);
+  } else {
+  
+    data=sortPostsByCreatedAt(data)
+    function sortPostsByCreatedAt(posts, order = "desc") {
+      return posts.sort((a, b) => {
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return order === "asc" ? dateA - dateB : dateB - dateA;
+      });
+    }
+    
+    data.forEach(post => {
+        
+    let dateTime=formatDateTime(post.created_at);
+    
+      
+
+    const postDiv = document.createElement("div");
+    postDiv.classList.add("post");
+
+    const postHeader = `
+      <div class="post-header" style="display: flex; align-items: center; margin-bottom: 10px;">
+        <img src="assets/images/profile-pic.jpg" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+        <div class="userInfo">
+          <span style="font-weight: bold;">${post.author}</span>
+          <span style="font-size: 12px; color: #555;">${dateTime.date} ${dateTime.time}</span>
+        </div>
+         <div class="post-options" style="margin-left: auto; position: relative;">
+            <button class="options-button" style="background: none; border: none; cursor: pointer; font-size: 20px;">⋮</button>
+            <div class="options-menu" style="display: none; position: absolute; right: 0; background: white; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+              <button class="delete-post" style="padding: 10px; width: 100%; border: none; background: none; cursor: pointer;">Delete</button>
+            </div>
+          </div>
+      </div>
+    `;
+    postDiv.innerHTML = postHeader;
+
+      const postText = document.createElement("p");
+      postText.textContent = post.content;
+      postDiv.appendChild(postText);
 
 
+      const postImage = document.createElement("img");
+      postImage.src = post.imageSrc;
+      postImage.alt = "Uploaded Image";
+      postImage.style.maxWidth = "100%";
+      postDiv.appendChild(postImage);
 
+      // Show/Hide the options menu when clicking the three dots button
+      const optionsButton = postDiv.querySelector(".options-button");
+      const optionsMenu = postDiv.querySelector(".options-menu");
+    
+
+      optionsButton.addEventListener("click", () => {
+        const isVisible = optionsMenu.style.display === "block";
+        optionsMenu.style.display = isVisible ? "none" : "block";
+      });
+  
+      // Event listener for delete button
+      const deleteButton = postDiv.querySelector(".delete-post");
+
+      deleteButton.addEventListener("click",async()=>{
+        const confirmDelete = confirm("Are you sure you want to delete this post?");
+        if (confirmDelete) {
+          try {
+        
+
+     
+            // Make DELETE request to Supabase
+            const { error } = await supabase
+              .from("posts") // Replace 'posts' with your actual table name
+              .delete()
+              .eq("id", post.id); // Match the post content
+      
+            if (error) {
+              console.error("Error deleting post from Supabase:", error);
+              alert("Failed to delete the post. Please try again.");
+            } else {
+              postDiv.remove(); // Remove the post from the DOM
+              alert("Post deleted successfully.");
+            }
+          } catch (err) {
+            console.error("Unexpected error:", err);
+            alert("An unexpected error occurred. Please try again.");
+          }
+        }
+      })
+    
+    postContainer.appendChild(postDiv);
+
+  });
+
+
+  }
+}
+
+
+function formatDateTime(inputDatetime) {
+  // Parse the input as UTC
+  const date = new Date(`${inputDatetime}Z`); // Append 'Z' to treat input as UTC
+
+  // Format the date as dd/mm/yy (Indian style)
+  const formattedDate = date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    timeZone: "Asia/Kolkata",
+  });
+
+  // Format the time as hh:mm AM/PM (Indian time)
+  const formattedTime = date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  });
+
+  // Return the formatted date and time
+  return { date: formattedDate, time: formattedTime };
+}

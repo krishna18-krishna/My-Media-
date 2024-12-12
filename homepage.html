@@ -52,18 +52,17 @@
             <div id="post-form" style="display:none;">
                 <textarea id="post-content" placeholder="Write something..." style=" margin-top: 10px; width: 600px; height: 100px; margin-left: 10px;"></textarea>
                 <!-- Remove the inline "onchange" event and add it via JS -->
-                <input type="file" id="post-media" accept="image/*, video/*" >
-                <button onclick="submitPost()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px;">Post</button>
-                <button onclick="hidePostForm()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px;">Cancel</button>
-                <img src="#" alt="" id="imagePreview">
-                <div class="media-stars">
-                    
-                </div>
+                <input type="file" id="post-media" style="cursor: pointer;" accept="image/*, video/* " >
+                <img id="imagePreview" src="#" alt="Image Preview" style="display: none;" />
+                <button id="submit-post" onclick="submitPost()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Post</button>
+                <button onclick="hidePostForm()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Cancel</button>
             </div>
-            <div id="post-container"></div>
+            <div id="post-container">
+                
+            </div>
         </div>
     </div>
-
+ 
     <div id="logout-alert" class="logout-alert" style="display: none;">
         <h1 class="alert-content">Are you sure you want to logout?</h1>
         <div class="button">
@@ -72,6 +71,7 @@
         </div>
     </div>
 
-    <script src="./js/script.js" defer></script> <!-- Make sure defer is added for proper loading order -->
+    <script type="module"  src="./js/script.js" defer></script>
+    <!-- Make sure defer is added for proper loading order -->
 </body>
 </html>
