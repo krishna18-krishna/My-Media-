@@ -1,95 +1,10 @@
-/* *{
-    padding: 0;
-    margin: 0;
-    font-family: 'poppins', sans-serif ;
-}
-
-#nav-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
- .settings-icon img{
-    width: 50px;
-    margin-top: 10px;
-    margin-right: 20px;
-    margin-bottom: 10px;
-    cursor: pointer;
-}
-.nav-right{
-    display: flex;
-}
-#username{
-    margin-left: 30px;
-    font-size: 30px;
-    margin-top: px;
-}
-
-.line{
-    border: 0.5px solid black;
-}
-#back-button{
-    margin-top: 5px;
-}
-#back-button i{
-    margin-left: 20px;
-    font-size: 25px;
-    cursor: pointer;
-}
-.container{
-    display: flex;
-    justify-content: space-around;
-    height: 100%;
-    width: 100%;
-}
-.line1{
-    border: 0.5px solid black;
-    height: 763px;
-}
-
-.profile-container{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 1000px;
-}
-.profile-image{
-   height: 100px;
-    /* margin-top: 100px;
-    margin-left: 150px; 
-}
-.profile-image-container{
-    height: 100%;
-    width: 100%;
-}
-/* .fullname{
-    font-size: 30px;
-    margin-left: 150px;
-    margin-top: 50px;
-}
-.edit-profile button{
-    padding: 10px 30px 10px 30px;
-    color: #fff;
-    background-color: #38b6ff;
-    border: #38b6ff;
-} 
-
-.create-post{
-    display: flex;
-}
-.create-post img{
-    height: 150px;
-    
-} */
-
-
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 /* Global Styling */
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'poppins', sans-serif ;
 }
 
 /* Header Styling */

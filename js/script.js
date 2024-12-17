@@ -27,7 +27,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const supabase = createClient(supabaseUrl, supabaseKey);
-console.log(supabase)
+console.log(supabase);
+
+  let currentUsername = null; // Declare globally to ensure accessibility
 
 // DOM content loaded event
 document.addEventListener("DOMContentLoaded", () => {
@@ -65,9 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-  let currentUsername = "Guest"; // Fallback username
+ 
 
-  // Fetch username dynamically after authentication
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userId = user.uid;
@@ -76,6 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           currentUsername = userDoc.data().username || "Guest";
+  
+          // Fetch posts only after currentUsername is initialized
+          fetchAllPosts();
         } else {
           console.error("No user document found in Firestore.");
         }
@@ -84,9 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else {
       console.log("No user is currently signed in.");
+      currentUsername = null; // Reset username if no user
     }
   });
-
+  
   // Clear form function
   function clearForm() {
     document.getElementById("post-content").value = "";
@@ -273,7 +278,7 @@ async function fetchAllPosts() {
 
     const postHeader = `
       <div class="post-header" style="display: flex; align-items: center; margin-bottom: 10px;">
-        <img src="assets/images/profile-pic.jpg" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+        <img src="assets/images/profile-pic.jpg" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-right: 10px;">
         <div class="userInfo">
           <span style="font-weight: bold;">${post.author}</span>
           <span style="font-size: 12px; color: #555;">${dateTime.date} ${dateTime.time}</span>
@@ -288,6 +293,8 @@ async function fetchAllPosts() {
     `;
     postDiv.innerHTML = postHeader;
 
+    
+
       const postText = document.createElement("p");
       postText.textContent = post.content;
       postDiv.appendChild(postText);
@@ -299,26 +306,91 @@ async function fetchAllPosts() {
       postImage.style.maxWidth = "100%";
       postDiv.appendChild(postImage);
 
+    // Buttons container
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.justifyContent = "start";
+    buttonContainer.style.gap = "100px";
+    buttonContainer.style.marginLeft = "10px";
+    buttonContainer.style.marginTop = "20px";
+    
+    // Like button
+    const likeDiv = document.createElement("div");
+    likeDiv.classList.add("like-button");
+    likeDiv.innerHTML = `
+      <img class="like-img" src="../assets/images/like.png" alt="Like">
+      <span class="like-count">0</span>
+    `;
+    
+    let liked = false;
+    let likeCount = 0; // Initialize like count
+    
+    likeDiv.addEventListener("click", () => {
+      if (!liked) {
+        liked = true;
+        likeCount += 1; // Increment like count only once
+        likeDiv.querySelector(".like-img").src = "../assets/images/like-blue.png"; // Change to blue like icon
+        likeDiv.querySelector(".like-count").textContent = likeCount; // Update the like count
+      } else {
+        liked = false;
+        likeCount -= 1; // Decrement like count
+        likeDiv.querySelector(".like-img").src = "../assets/images/like.png"; // Change back to default like icon
+        likeDiv.querySelector(".like-count").textContent = likeCount; // Update the like count
+      }
+    });
+    
+    // Comment button
+    const commentDiv = document.createElement("div");
+    commentDiv.classList.add("comment-button");
+    commentDiv.innerHTML = `
+    <img class="comment-img" src="../assets/images/comments.png" alt="Comments">
+    <span class="comment-count">0</span>
+    `;
+    
+    // Share button
+    const shareDiv = document.createElement("div");
+    shareDiv.classList.add("share-button");
+    shareDiv.innerHTML = `
+    <img class="share-img" src="../assets/images/share.png" alt="Share">
+    <span class="share-count">0</span>
+    `;
+    
+    // Append buttons to the button container
+    buttonContainer.appendChild(likeDiv);
+    buttonContainer.appendChild(commentDiv);
+    buttonContainer.appendChild(shareDiv);
+    
+    // Append the button container to the post
+    postDiv.appendChild(buttonContainer);
+
       // Show/Hide the options menu when clicking the three dots button
       const optionsButton = postDiv.querySelector(".options-button");
       const optionsMenu = postDiv.querySelector(".options-menu");
-    
 
+      if (post.author !== currentUsername) {
+        optionsButton.style.display = "none"
+      }
+      else{
       optionsButton.addEventListener("click", () => {
         const isVisible = optionsMenu.style.display === "block";
         optionsMenu.style.display = isVisible ? "none" : "block";
       });
+      }
   
       // Event listener for delete button
       const deleteButton = postDiv.querySelector(".delete-post");
+      console.log("Current User:", currentUsername);
 
       deleteButton.addEventListener("click",async()=>{
+        console.log("Post Author:", post.author);
+      
+        if (post.author !== currentUsername) {
+          optionsButton.style.display = "none"
+        }
+
         const confirmDelete = confirm("Are you sure you want to delete this post?");
         if (confirmDelete) {
           try {
-        
-
-     
             // Make DELETE request to Supabase
             const { error } = await supabase
               .from("posts") // Replace 'posts' with your actual table name
@@ -348,6 +420,8 @@ async function fetchAllPosts() {
 }
 
 
+
+
 function formatDateTime(inputDatetime) {
   // Parse the input as UTC
   const date = new Date(`${inputDatetime}Z`); // Append 'Z' to treat input as UTC
@@ -371,3 +445,6 @@ function formatDateTime(inputDatetime) {
   // Return the formatted date and time
   return { date: formattedDate, time: formattedTime };
 }
+
+
+

@@ -7,6 +7,9 @@
     <title>My Media</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" href="assets/images/ic_logo-2.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" 
+    integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" 
+    referrerpolicy="no-referrer" />
 </head>
 <body>
     <nav>
@@ -28,11 +31,6 @@
             </div>
             <div class="nav-user-icon online">
                 <a href="#"><img src="assets/images/profile-pic.jpg" alt="Profile" id="userIcon" onclick="toggleMenu()"></a>
-
- 
-                <!------------------ Settings-menu --------------------->
-            <!-- <div class="nav-user-icon online">
-                <img src="assets/images/profile-pic.jpg" alt="Profile" onclick="toggleMenu()"> -->
                 <div id="settings-menu" class="settings-menu">
                     <a href="./profile.html">See your profile</a>
                     <a href="#">Settings & Privacy</a>
@@ -50,8 +48,7 @@
                 
             </div> 
             <div id="post-form" style="display:none;">
-                <textarea id="post-content" placeholder="Write something..." style=" margin-top: 10px; width: 600px; height: 100px; margin-left: 10px;"></textarea>
-                <!-- Remove the inline "onchange" event and add it via JS -->
+                <textarea id="post-content" placeholder="Write something..."></textarea>
                 <input type="file" id="post-media" style="cursor: pointer;" accept="image/*, video/* " >
                 <img id="imagePreview" src="#" alt="Image Preview" style="display: none;" />
                 <button id="submit-post" onclick="submitPost()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Post</button>
