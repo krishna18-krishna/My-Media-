@@ -1,8 +1,5 @@
- // Import the Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
+import { getAuth, signOut, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -17,21 +14,21 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
-// Redirect if logged in
-/* async function checkLoginStatus() {
-  const user = auth.currentUser;
+// Force log out any existing session
+signOut(auth).catch((error) => console.error("Error signing out:", error));
+
+// Set session persistence to browser session only
+setPersistence(auth, browserSessionPersistence).catch((error) => console.error("Persistence error:", error));
+
+// Redirect to homepage if already logged in
+onAuthStateChanged(auth, (user) => {
   if (user) {
-      const userDoc = doc(db, "users", user.uid);
-      const userSnapshot = await getDoc(userDoc);
-      if (userSnapshot.exists() && userSnapshot.data().loginStatus) {
-          window.location.href = "./homepage.html";
-      }
+    console.log("Already logged in:", user);
+    window.location.href = "./homepage.html";
   }
-}
-checkLoginStatus(); */
+});
 
 // Login form elements
 const loginForm = document.getElementById("loginForm");

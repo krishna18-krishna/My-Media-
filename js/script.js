@@ -107,13 +107,15 @@ async function submitPost() {
   const postContent = document.getElementById("post-content").value.trim();
   const postImageSrc = document.getElementById("imagePreview").src;
 
-  if (!postContent && (!postImageSrc || postImageSrc === "#")) {
-    alert("Please add some text or upload an image.");
+  // Check if both content and image are missing
+  if (!postContent ){
+    alert("Please write the content.");
+    return; // Prevent form submission
+  }
+  if(!postImageSrc || postImageSrc === "#"){
+    alert("Please select the image");
     return;
   }
-
-  
-
   try {
     // Log the input before sending
     console.log("Submitting post with content:", postContent);
@@ -132,9 +134,12 @@ async function submitPost() {
   } catch (err) {
     console.error("Error submitting post:", err.message);
   }
-  fetchAllPosts()
 
+  // Clear the form after submission
   clearForm();
+
+  // Fetch updated posts
+  fetchAllPosts();
 }
 
 // Attach function to the window for global access
@@ -339,6 +344,8 @@ async function fetchAllPosts() {
       }
     });
     
+
+
     // Comment button
     const commentDiv = document.createElement("div");
     commentDiv.classList.add("comment-button");
@@ -379,10 +386,8 @@ async function fetchAllPosts() {
   
       // Event listener for delete button
       const deleteButton = postDiv.querySelector(".delete-post");
-      console.log("Current User:", currentUsername);
 
       deleteButton.addEventListener("click",async()=>{
-        console.log("Post Author:", post.author);
       
         if (post.author !== currentUsername) {
           optionsButton.style.display = "none"
@@ -446,5 +451,37 @@ function formatDateTime(inputDatetime) {
   return { date: formattedDate, time: formattedTime };
 }
 
+const notificationIcon = document.getElementById("notifications");
+const dropdown = document.getElementById("notification-dropdown");
 
+// Sample notifications (these can be fetched from Supabase or any other source)
+const sampleNotifications = []; // This is an empty array, but you can add notifications here for testing
+
+// Function to show notifications or "No notifications"
+function showNotifications() {
+  // Clear the dropdown
+  dropdown.innerHTML = "";
+
+  // Check if there are notifications
+  if (sampleNotifications.length === 0) {
+    const noNotificationMessage = document.createElement("div");
+    noNotificationMessage.classList.add("notification-item");
+    noNotificationMessage.textContent = "No notifications";
+    dropdown.appendChild(noNotificationMessage);
+  } else {
+    // Display the notifications
+    sampleNotifications.forEach((msg) => {
+      const notificationItem = document.createElement("div");
+      notificationItem.classList.add("notification-item");
+      notificationItem.textContent = msg;
+      dropdown.appendChild(notificationItem);
+    });
+  }
+}
+
+// Toggle dropdown visibility on icon click
+notificationIcon.addEventListener("click", () => {
+  dropdown.classList.toggle("hidden");
+  showNotifications();
+});
 

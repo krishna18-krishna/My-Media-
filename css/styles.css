@@ -343,3 +343,35 @@ nav{
   .like-count, .comment-count, .share-count{
     font-size: 20px;
   }
+  /* Dropdown container styling */
+  .dropdown {
+    position: fixed;
+    top: 58px; /* Below the icon */
+    left: 10px;
+    width: 300px;
+    background-color: #4285f4;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Individual notification */
+  .notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #f1f1f1;
+    font-family: Arial, sans-serif;
+    color: #333;
+    cursor: pointer;
+    color: #fff;
+  }
+  
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* Hide dropdown initially */
+  .hidden {
+    display: none;
+  } 
+  
