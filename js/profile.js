@@ -1,11 +1,8 @@
-
-
 // Import Firebase services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import {
     getAuth,
-    createUserWithEmailAndPassword,
-    signOut,
+
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
@@ -16,19 +13,15 @@ import {
     query,
     where
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { getDatabase, } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 import {
     getStorage,
     ref as storeRef,
-    uploadBytes,
-    getDownloadURL
+
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
-
-
-
-
-
+//Import supabase service
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.27.0/+esm"; 
 
 // Firebase configuration
 const firebaseConfig = {
@@ -41,12 +34,22 @@ const firebaseConfig = {
     measurementId: "G-D26DKE6ZVG"
 };
 
+// Supabase configuration
+const supabaseUrl = "https://fwqpzgoprwvmvgmbivac.supabase.co";
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cXB6Z29wcnd2bXZnbWJpdmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM4Mjk1NDEsImV4cCI6MjA0OTQwNTU0MX0.q9avx0jhYYVCch89S0GAtk2fJMhKbxxMHa6Qu7sktP4";
+console.log(supabaseUrl);
+console.log(supabaseKey);
+
+
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const firebase=getDatabase(app);
-const storage=getStorage(app)
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+console.log(supabase);
 
 // DOM Elements
 const usernameElement = document.getElementById("username");
@@ -120,62 +123,121 @@ if (backButton) {
 
 export { fetchUsername };
 
+let userID = null;
+
+// Fetch and console the authors' details
+async function getAuthors() {
+    try {
+        const { data, error } = await supabase
+            .from("Authors") // Replace "Authors" with your actual table name
+            .select("*"); // Adjust the columns you want to retrieve, e.g., `.select("name, bio")`
+
+        if (error) {
+            console.error("Error fetching authors:", error);
+            return;
+        }
+
+        if (data && data.length > 0) {
+            console.log("Authors Data:", data);
+        } else {
+            console.log("No authors found.");
+        }
+    } catch (error) {
+        console.error("Unexpected error fetching authors:", error);
+    }
+}
+
+// Call the function
+getAuthors();
+
+
 
 const uploadButton = document.getElementById('uploadButton');
 const imageInput = document.getElementById('fileInput');
 const uploadStatus = document.getElementById('uploadStatus');
-const uploadedImagePreview = document.getElementById('uploadedImagePreview');
-const userID = localStorage.getItem("uid");
-
-// Profile image element
 const profileImagePreview = document.getElementById('profileImagePreview');
 
+/* // Supabase bucket name
+const profile_image = 'profile-images';
+
+// Handle the click event for the upload button
 uploadButton.addEventListener('click', () => {
-    imageInput.click(); // Open file dialog
+    imageInput.click(); // Open the file dialog
 });
 
-imageInput.addEventListener('change', async () => {
-    const file = imageInput.files[0];
-    if (file) {
-        const storageRef = storeRef(storage, `UserPosts/${file.name + new Date().toISOString() + Math.random()}`); 
-        uploadStatus.textContent = 'Uploading...';
-        try {
-            await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(storageRef);
+// Handle the file input change event
+imageInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
 
-            // Update the profile image preview
-            profileImagePreview.src = downloadURL;
+    if (!file) {
+        uploadStatus.textContent = "No file selected.";
+        return;
+    }
 
-            // Optional: Add a preview of the uploaded image below the upload button
-            uploadedImagePreview.innerHTML = `
-                <p class="text-green-500">Image uploaded successfully!</p>
-                <img src="${downloadURL}" alt="Uploaded Image" class="mt-4 max-w-full rounded-lg shadow-md">
-            `;
+    const userID = localStorage.getItem("id");
+    if (!userID) {
+        uploadStatus.textContent = "User ID not found.";
+        return;
+    }
 
-            // Sanitize date function
-            function sanitizingDate() {
-                return new Date().toISOString().replace(/[-:.T]/g, '_');
-            }
+    const fileName = `${userID}-${Date.now()}-${file.name}`; // Unique filename
+    const filePath = `${userID}/${fileName}`;
 
-            // Firebase Realtime Database post data path
-            const postPath = `socify/posts/${sanitizingDate()}_${userID}/`;
-            const postData = {
-                postLink: downloadURL,
-                like: 0,
-                comment: 0,
-                uid: userID,
-            };
+    try {
+        // Upload the file to Supabase Storage
+        const { data, error } = await supabase.storage
+            .from(profile_image)
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: true,
+            });
 
-            // Save post data to Firebase Realtime Database
-            await set(ref(firebase, postPath), postData);
-
-            uploadStatus.textContent = 'Upload complete.';
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            uploadStatus.textContent = 'Error uploading image. Please try again.';
+        if (error) {
+            throw error;
         }
-    } else {
-        uploadStatus.textContent = 'Please select an image first.';
+
+        // Fetch the public URL of the uploaded image
+        const { data: publicUrlData } = supabase.storage
+            .from(profile_image)
+            .getPublicUrl(filePath);
+
+        if (publicUrlData.publicUrl) {
+            // Update the profile image preview
+            uploadStatus.textContent = "Upload successful!";
+            profileImagePreview.src = publicUrlData.publicUrl; // Display the uploaded image
+
+            console.log("Image uploaded successfully. Public URL:", publicUrlData.publicUrl);
+        } else {
+            uploadStatus.textContent = "Failed to generate public URL.";
+        }
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        uploadStatus.textContent = "Error uploading file.";
     }
 });
 
+// Function to load the profile image
+async function loadProfileImage(userId) {
+    try {
+        const filePath = `${userId}/profile-image.jpg`; // Replace with actual logic if stored in Firestore or Supabase table
+
+        // Fetch the public URL
+        const { data, error } = supabase.storage.from(profile_image).getPublicUrl(filePath);
+
+        if (error || !data.publicUrl) {
+            console.error("Error fetching profile image URL:", error);
+            profileImagePreview.src = "default-profile.png"; // Fallback to a default image
+        } else {
+            profileImagePreview.src = data.publicUrl; // Display the profile image
+        }
+    } catch (error) {
+        console.error("Error fetching profile image:", error);
+        profileImagePreview.src = "default-profile.png"; // Fallback to a default image
+    }
+}
+
+// Example usage: Call `loadProfileImage` with the logged-in user's ID
+const loggedInUserId = localStorage.getItem("id");
+if (loggedInUserId) {
+    loadProfileImage(loggedInUserId);
+} */

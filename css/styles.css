@@ -195,7 +195,7 @@ nav{
     position: absolute;
     width: 650%;
     max-width:250px;
-    height: 250px;
+    height: 155px;
     background: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
     border-radius: 4px;
@@ -332,7 +332,6 @@ nav{
     display: flex;
     flex-direction: column;
   }
-
 
   /* action buttons*/
   .like-img, .comment-img, .share-img{

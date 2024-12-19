@@ -12,7 +12,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #f8f9fa;
+    background-color: #1876f2;
     padding: 15px 20px;
     border-bottom: 1px solid #ccc;
 }
@@ -31,6 +31,7 @@
     margin-left: 20px;
     font-size: 25px;
     font-weight: bold;
+    color: #fff;
 }
 
 #back-button i {
@@ -49,7 +50,7 @@
 }
 .line1{
     border: 0.5px solid black;
-    height: 750px;
+    height: 800px;
 }
 
 /* Container Styling */

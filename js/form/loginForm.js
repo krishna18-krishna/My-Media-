@@ -60,7 +60,7 @@ loginForm.addEventListener("submit", (event) => {
     } else if (!emailPattern1.test(email.value.trim())) {
       emailError.textContent = "Email is invalid.";
       valid = false;
-    } else if (email.value.includes("\\")) { // Check for backslash
+    } else if (email.value.includes("\\")) { 
       emailError.textContent = "Email is invalid.";
       valid = false;
     } else if(email.value.includes("//")){
@@ -70,7 +70,7 @@ loginForm.addEventListener("submit", (event) => {
     else if (!emailPattern1.test(email.value.trim())) {
       emailError.textContent = "Please enter a valid email.";
       valid = false;
-    } else if (/@[0-9]/.test(email.value.trim())) { // Ensure domain doesn't start with a number
+    } else if (/@[0-9]/.test(email.value.trim())) { 
       emailError.textContent = "Email is invalid.";
       valid = false;
     }
@@ -79,7 +79,7 @@ loginForm.addEventListener("submit", (event) => {
   if (password.value.trim() === "") {
     passwordError.textContent = "Password is required";
     valid = false;
-  } else if (password.value.length < 8) { // Check password length
+  } else if (password.value.length < 8) { 
     passwordError.textContent = "Password must be at least 8 characters";
     valid = false;
   }
@@ -91,7 +91,7 @@ loginForm.addEventListener("submit", (event) => {
         // Signed in successfully
         const user = userCredential.user;
         console.log("User:", user);
-        window.location.href = "./homepage.html"; // Redirect to homepage
+        window.location.href = "./homepage.html"; 
       })
       .catch((error) => {
         // Handle login errors
@@ -105,7 +105,7 @@ loginForm.addEventListener("submit", (event) => {
           /* alert("Invalid Email and Password"); */
           const generalError = document.getElementById("emailError");
           generalError.textContent = "Enter a valid email or password";
-          generalError.style.display = "block"; // Ensure the message is shown
+          generalError.style.display = "block"; 
         }
       });
   }

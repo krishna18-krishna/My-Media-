@@ -108,13 +108,9 @@ async function submitPost() {
   const postImageSrc = document.getElementById("imagePreview").src;
 
   // Check if both content and image are missing
-  if (!postContent ){
+  if (!postContent && (postImageSrc || postImageSrc === "#") ){
     alert("Please write the content.");
     return; // Prevent form submission
-  }
-  if(!postImageSrc || postImageSrc === "#"){
-    alert("Please select the image");
-    return;
   }
   try {
     // Log the input before sending
@@ -245,12 +241,12 @@ window.submitPost = submitPost;
   window.logout = function () {
     console.log("User logged out!");
     hideLogoutAlert();
-    window.location.href = "../index.html"; // Redirect to the login page
+    window.location.href = "../index.html";
   };
 });
 
 
-// Example: Fetching all data from the "posts" table
+//Fetching all data from the "posts" table
 async function fetchAllPosts() {
 
   document.getElementById("post-form").style.display="none"
@@ -308,7 +304,7 @@ async function fetchAllPosts() {
       const postImage = document.createElement("img");
       postImage.src = post.imageSrc;
       postImage.alt = "Uploaded Image";
-      postImage.style.maxWidth = "100%";
+      postImage.style.width = "600px";
       postDiv.appendChild(postImage);
 
     // Buttons container
@@ -388,25 +384,21 @@ async function fetchAllPosts() {
       const deleteButton = postDiv.querySelector(".delete-post");
 
       deleteButton.addEventListener("click",async()=>{
-      
-        if (post.author !== currentUsername) {
-          optionsButton.style.display = "none"
-        }
 
         const confirmDelete = confirm("Are you sure you want to delete this post?");
         if (confirmDelete) {
           try {
             // Make DELETE request to Supabase
             const { error } = await supabase
-              .from("posts") // Replace 'posts' with your actual table name
+              .from("posts") 
               .delete()
-              .eq("id", post.id); // Match the post content
+              .eq("id", post.id); 
       
             if (error) {
               console.error("Error deleting post from Supabase:", error);
               alert("Failed to delete the post. Please try again.");
             } else {
-              postDiv.remove(); // Remove the post from the DOM
+              postDiv.remove(); 
               alert("Post deleted successfully.");
             }
           } catch (err) {
@@ -428,10 +420,10 @@ async function fetchAllPosts() {
 
 
 function formatDateTime(inputDatetime) {
-  // Parse the input as UTC
-  const date = new Date(`${inputDatetime}Z`); // Append 'Z' to treat input as UTC
 
-  // Format the date as dd/mm/yy (Indian style)
+  const date = new Date(`${inputDatetime}Z`); 
+
+
   const formattedDate = date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "2-digit",
@@ -439,7 +431,6 @@ function formatDateTime(inputDatetime) {
     timeZone: "Asia/Kolkata",
   });
 
-  // Format the time as hh:mm AM/PM (Indian time)
   const formattedTime = date.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -447,15 +438,13 @@ function formatDateTime(inputDatetime) {
     timeZone: "Asia/Kolkata",
   });
 
-  // Return the formatted date and time
   return { date: formattedDate, time: formattedTime };
 }
 
 const notificationIcon = document.getElementById("notifications");
 const dropdown = document.getElementById("notification-dropdown");
 
-// Sample notifications (these can be fetched from Supabase or any other source)
-const sampleNotifications = []; // This is an empty array, but you can add notifications here for testing
+const sampleNotifications = []; 
 
 // Function to show notifications or "No notifications"
 function showNotifications() {
@@ -485,3 +474,8 @@ notificationIcon.addEventListener("click", () => {
   showNotifications();
 });
 
+
+const chatBox = document.getElementById("chatBox");
+chatBox.addEventListener("click", () =>{
+  window.location.href = "../chatBox.html"
+})
