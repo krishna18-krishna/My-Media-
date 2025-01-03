@@ -1,10 +1,21 @@
 // Import Firebase services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  query,
+  where,
+  getDocs, // Ensure this is imported
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 // Import Supabase from CDN
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.27.0/+esm"; 
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.27.0/+esm";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -27,15 +38,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const supabase = createClient(supabaseUrl, supabaseKey);
-console.log(supabase);
 
-  let currentUsername = null; // Declare globally to ensure accessibility
+let currentUsername = null; // Declare globally to ensure accessibility
 
 // DOM content loaded event
 document.addEventListener("DOMContentLoaded", () => {
   fetchAllPosts();
 
-  // setting menu
+  // Setting menu
   const userIcon = document.getElementById("userIcon");
   if (userIcon) {
     userIcon.addEventListener("click", toggleMenu);
@@ -66,9 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
- 
-
+  // Firebase auth state change
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userId = user.uid;
@@ -77,9 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           currentUsername = userDoc.data().username || "Guest";
-  
-          // Fetch posts only after currentUsername is initialized
-          fetchAllPosts();
+          await fetchAllPosts(); // Ensure posts are fetched first
         } else {
           console.error("No user document found in Firestore.");
         }
@@ -88,10 +94,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else {
       console.log("No user is currently signed in.");
-      currentUsername = null; // Reset username if no user
+      currentUsername = null;
     }
   });
-  
+
   // Clear form function
   function clearForm() {
     document.getElementById("post-content").value = "";
@@ -100,47 +106,47 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("imagePreview").style.display = "none";
   }
 
+  // Submit post to Supabase
+  async function submitPost() {
+    const postContent = document.getElementById("post-content").value.trim();
+    const postImageSrc = document.getElementById("imagePreview").src;
 
-
-// Submit post to Supabase
-async function submitPost() {
-  const postContent = document.getElementById("post-content").value.trim();
-  const postImageSrc = document.getElementById("imagePreview").src;
-
-  // Check if both content and image are missing
-  if (!postContent && (postImageSrc || postImageSrc === "#") ){
-    alert("Please write the content.");
-    return; // Prevent form submission
-  }
-  try {
-    // Log the input before sending
-    console.log("Submitting post with content:", postContent);
-    console.log("Submitting post with imageSrc:", postImageSrc);
-
-    // Insert into Supabase
-    const { data, error } = await supabase
-      .from("posts") // Ensure this matches your table name
-      .insert([{ content: postContent, imageSrc: postImageSrc, author: currentUsername }]).select(); // Ensure column names match
-
-    if (error) {
-      console.error("Error storing post in Supabase:", error.message);
-    } else {
-      console.log("Post stored successfully in Supabase:", data);
+    if (!postContent && (postImageSrc || postImageSrc === "#")) {
+      alert("Please write the content.");
+      return;
     }
-  } catch (err) {
-    console.error("Error submitting post:", err.message);
+
+    try {
+      console.log("Submitting post with content:", postContent);
+      console.log("Submitting post with imageSrc:", postImageSrc);
+
+      const { data, error } = await supabase
+        .from("posts")
+        .insert([
+          {
+            content: postContent,
+            imageSrc: postImageSrc,
+            author: currentUsername,
+          },
+        ])
+        .select();
+
+      if (error) {
+        console.error("Error storing post in Supabase:", error.message);
+      } else {
+        console.log("Post stored successfully in Supabase:", data);
+      }
+    } catch (err) {
+      console.error("Error submitting post:", err.message);
+    }
+
+    clearForm();
+    hidePostForm();
+    fetchAllPosts();
   }
 
-  // Clear the form after submission
-  clearForm();
-
-  // Fetch updated posts
-  fetchAllPosts();
-}
-
-// Attach function to the window for global access
-window.submitPost = submitPost;
-
+  // Attach function to the window for global access
+  window.submitPost = submitPost;
 
   // Handle media upload
   const mediaInput = document.getElementById("post-media");
@@ -168,49 +174,77 @@ window.submitPost = submitPost;
   const addPostButton = document.createElement("button");
   addPostButton.textContent = "Add Post";
   addPostButton.id = "add-post-button";
-  addPostButton.style.position = "fixed";
-  addPostButton.style.bottom = "20px";
-  addPostButton.style.right = "20px";
-  addPostButton.style.padding = "10px 20px";
-  addPostButton.style.backgroundColor = "#007bff";
-  addPostButton.style.color = "#fff";
-  addPostButton.style.border = "none";
-  addPostButton.style.borderRadius = "5px";
-  addPostButton.style.cursor = "pointer";
+  Object.assign(addPostButton.style, {
+    position: "fixed",
+    bottom: "20px",
+    right: "20px",
+    padding: "10px 20px",
+    backgroundColor: "#007bff",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  });
 
-  // Append the button to the body
   document.body.appendChild(addPostButton);
 
+  const overlay = document.querySelector(".overlay");
+  const postForm = document.getElementById("post-form");
+
   // Show post form
-  window.showPostForm = function () {
-    const postForm = document.getElementById("post-form");
-    if (postForm) {
+  function showPostForm() {
+    if (postForm && overlay) {
       console.log("Showing post form.");
       postForm.style.display = "block";
+      Object.assign(overlay.style, {
+        display: "block",
+        position: "fixed",
+        top: "0",
+        left: "0",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        zIndex: "999",
+      });
     } else {
-      console.error("Post form not found.");
+      console.error("Post form or overlay not found.");
     }
-  };
+  }
 
   // Hide post form
-  window.hidePostForm = function () {
+  function hidePostForm() {
+    const overlay = document.querySelector(".overlay");
     const postForm = document.getElementById("post-form");
-    if (postForm) {
-      console.log("Hiding post form.");
-      postForm.style.display = "none";
-      clearForm();
-    } else {
-      console.error("Post form not found.");
-    }
-  };
 
-  // Attach event listener to the button
-  addPostButton.addEventListener("click", function () {
+    if (overlay && postForm) {
+      overlay.style.display = "none";
+      postForm.style.display = "none";
+      clearForm(); // Ensure this function exists
+    } else {
+      console.error("Overlay or post form not found.");
+    }
+  }
+
+  // Attach to the global window object
+  window.hidePostForm = hidePostForm;
+
+  // Attach event listeners
+  addPostButton.addEventListener("click", () => {
     console.log("Add Post button clicked.");
     showPostForm();
   });
 
-  // Submit post on button click
+  document.addEventListener("DOMContentLoaded", () => {
+    const cancelButton = document.querySelector(
+      "#post-form button:nth-of-type(2)"
+    );
+    if (cancelButton) {
+      cancelButton.addEventListener("click", hidePostForm);
+    } else {
+      console.error("Cancel button not found in post form.");
+    }
+  });
+
   document.addEventListener("DOMContentLoaded", () => {
     const submitButton = document.getElementById("submit-post");
     if (submitButton) {
@@ -245,21 +279,18 @@ window.submitPost = submitPost;
   };
 });
 
-
 //Fetching all data from the "posts" table
 async function fetchAllPosts() {
-
-  document.getElementById("post-form").style.display="none"
+  document.getElementById("post-form").style.display = "none";
   let { data, error } = await supabase
     .from("posts") // Replace "posts" with your table name
     .select("*"); // Select all columns; you can specify column names if needed
-    const postContainer = document.getElementById("post-container");
-    postContainer.innerHTML=""
+  const postContainer = document.getElementById("post-container");
+  postContainer.innerHTML = "";
   if (error) {
     console.error("Error fetching posts:", error);
   } else {
-  
-    data=sortPostsByCreatedAt(data)
+    data = sortPostsByCreatedAt(data);
     function sortPostsByCreatedAt(posts, order = "desc") {
       return posts.sort((a, b) => {
         const dateA = new Date(a.created_at);
@@ -267,39 +298,42 @@ async function fetchAllPosts() {
         return order === "asc" ? dateA - dateB : dateB - dateA;
       });
     }
-    
-    data.forEach(post => {
-        
-    let dateTime=formatDateTime(post.created_at);
-    
-      
 
-    const postDiv = document.createElement("div");
-    postDiv.classList.add("post");
+    data.forEach((post) => {
+      let dateTime = formatDateTime(post.created_at);
 
-    const postHeader = `
-      <div class="post-header" style="display: flex; align-items: center; margin-bottom: 10px;">
-        <img src="assets/images/profile-pic.jpg" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-right: 10px;">
-        <div class="userInfo">
-          <span style="font-weight: bold;">${post.author}</span>
-          <span style="font-size: 12px; color: #555;">${dateTime.date} ${dateTime.time}</span>
-        </div>
-         <div class="post-options" style="margin-left: auto; position: relative;">
-            <button class="options-button" style="background: none; border: none; cursor: pointer; font-size: 20px;">⋮</button>
-            <div class="options-menu" style="display: none; position: absolute; right: 0; background: white; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
-              <button class="delete-post" style="padding: 10px; width: 100%; border: none; background: none; cursor: pointer;">Delete</button>
-            </div>
-          </div>
+      const postDiv = document.createElement("div");
+      postDiv.classList.add("post");
+
+      const postHeader = `
+  <div class="post-header" style="display: flex; align-items: center; margin-bottom: 10px;">
+    <img src="assets/images/profile-pic.jpg" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-right: 10px;">
+    <div class="userInfo">
+      <span style="font-weight: bold;">${post.author}</span>
+      <span style="font-size: 12px; color: #555;">${dateTime.date} ${dateTime.time}</span>
+    </div>
+    ${post.author !== currentUsername ? `
+      <div id="follow-button">
+        <button id="followButton">Follow</button>
       </div>
-    `;
-    postDiv.innerHTML = postHeader;
+    ` : ''}
+    <div class="post-options" style="margin-left: auto; position: relative;">
+      <button class="options-button" style="background: none; border: none; cursor: pointer; font-size: 20px;">⋮</button>
+      <div class="options-menu" style="display: none; position: absolute; right: 0; background: white; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+        <button class="delete-post" style="padding: 10px; width: 100%; border: none; background: none; cursor: pointer;">Delete</button>
+      </div>
+    </div>
+  </div>
+`;
 
-    
+      postDiv.innerHTML = postHeader;
 
       const postText = document.createElement("p");
+      postText.style.marginTop = "30px";
+      postText.style.marginBottom = "30px";
+      postText.style.marginLeft = "10px";
       postText.textContent = post.content;
       postDiv.appendChild(postText);
-
 
       const postImage = document.createElement("img");
       postImage.src = post.imageSrc;
@@ -307,98 +341,197 @@ async function fetchAllPosts() {
       postImage.style.width = "600px";
       postDiv.appendChild(postImage);
 
-    // Buttons container
-    const buttonContainer = document.createElement("div");
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.justifyContent = "start";
-    buttonContainer.style.gap = "100px";
-    buttonContainer.style.marginLeft = "10px";
-    buttonContainer.style.marginTop = "20px";
-    
-    // Like button
-    const likeDiv = document.createElement("div");
-    likeDiv.classList.add("like-button");
-    likeDiv.innerHTML = `
-      <img class="like-img" src="../assets/images/like.png" alt="Like">
-      <span class="like-count">0</span>
-    `;
-    
-    let liked = false;
-    let likeCount = 0; // Initialize like count
-    
-    likeDiv.addEventListener("click", () => {
-      if (!liked) {
-        liked = true;
-        likeCount += 1; // Increment like count only once
-        likeDiv.querySelector(".like-img").src = "../assets/images/like-blue.png"; // Change to blue like icon
-        likeDiv.querySelector(".like-count").textContent = likeCount; // Update the like count
-      } else {
-        liked = false;
-        likeCount -= 1; // Decrement like count
-        likeDiv.querySelector(".like-img").src = "../assets/images/like.png"; // Change back to default like icon
-        likeDiv.querySelector(".like-count").textContent = likeCount; // Update the like count
+      // Buttons container
+      const buttonContainer = document.createElement("div");
+      buttonContainer.style.display = "flex";
+      buttonContainer.style.justifyContent = "start";
+      buttonContainer.style.gap = "100px";
+      buttonContainer.style.marginLeft = "10px";
+      buttonContainer.style.marginTop = "10px";
+      buttonContainer.style.marginBottom = "10px";
+
+      // Like button
+      const likeDiv = document.createElement("div");
+      likeDiv.classList.add("like-button");
+      likeDiv.innerHTML = `
+  <img class="like-img" src="../assets/images/like.png" alt="Like">
+  <span class="like-count">0</span>
+`;
+
+      let liked = false;
+      let likeCount = 0; // Initialize like count
+      const postId = post.id; // Replace with the post's UUID
+      const authorName = currentUsername; // Replace with the user's name
+
+      // Fetch the initial like count for the post
+      async function fetchLikes() {
+        try {
+          // Fetch total likes for the post
+          const { count, error } = await supabase
+            .from("likes")
+            .select("*", { count: "exact" })
+            .eq("post_id", postId);
+
+          if (error) {
+            console.error("Error fetching total likes:", error);
+            return;
+          }
+
+          likeCount = count || 0; // Use the count value from the query
+          likeDiv.querySelector(".like-count").textContent = likeCount;
+
+          // Check if the current user has liked the post
+          liked = await checkIfLiked();
+          updateLikeIcon();
+        } catch (err) {
+          console.error("Error fetching likes:", err);
+        }
       }
-    });
-    
 
+      // Check if the user has already liked the post
+      async function checkIfLiked() {
+        const { data, error } = await supabase
+          .from("likes")
+          .select("*")
+          .eq("post_id", postId)
+          .eq("author_name", authorName);
 
-    // Comment button
-    const commentDiv = document.createElement("div");
-    commentDiv.classList.add("comment-button");
-    commentDiv.innerHTML = `
+        if (error) {
+          console.error("Error checking like status:", error);
+          return false;
+        }
+
+        return data.length > 0; // Return true if a record exists
+      }
+
+      // Handle like or unlike
+      async function handleLike() {
+        try {
+          if (!liked) {
+            // Upsert ensures no duplicate rows
+            const { error: upsertError } = await supabase
+              .from("likes")
+              .upsert(
+                { post_id: postId, author_name: authorName },
+                { onConflict: ["post_id", "author_name"] }
+              );
+
+            if (upsertError) {
+              console.error("Error liking post:", upsertError);
+              return;
+            }
+            // Send a notification to the post author
+            await sendNotification(author, `${authorName} liked your post.`);
+          } else {
+            // Remove the like
+            const { error: deleteError } = await supabase
+              .from("likes")
+              .delete()
+              .eq("post_id", postId)
+              .eq("author_name", authorName);
+
+            if (deleteError) {
+              console.error("Error unliking post:", deleteError);
+              return;
+            }
+          }
+
+          // Update the like count in the UI
+          likeDiv.querySelector(".like-count").textContent = likeCount;
+          liked = !liked; // Toggle the liked state
+          updateLikeIcon();
+        } catch (error) {
+          console.error("Error handling like:", error);
+        }
+      }
+
+      // Update the like button icon
+      function updateLikeIcon() {
+        likeDiv.querySelector(".like-img").src = liked
+          ? "../assets/images/like-blue.png"
+          : "../assets/images/like.png";
+      }
+
+      async function sendNotification(toUser, message) {
+        try {
+          const { error } = await supabase.from("notifications").insert({
+            recipient: toUser,
+            message: message,
+            read: false, // Mark notification as unread
+            timestamp: new Date().toISOString(),
+          });
+
+          if (error) {
+            console.error("Error sending notification:", error);
+          }
+        } catch (err) {
+          console.error("Error in sendNotification:", err);
+        }
+      }
+
+      // Add click event to the like button
+      likeDiv.addEventListener("click", handleLike);
+
+      // Fetch initial likes on page load
+      fetchLikes();
+
+      // Comment button
+      const commentDiv = document.createElement("div");
+      commentDiv.classList.add("comment-button");
+      commentDiv.innerHTML = `
     <img class="comment-img" src="../assets/images/comments.png" alt="Comments">
     <span class="comment-count">0</span>
     `;
-    
-    // Share button
-    const shareDiv = document.createElement("div");
-    shareDiv.classList.add("share-button");
-    shareDiv.innerHTML = `
+
+      // Share button
+      const shareDiv = document.createElement("div");
+      shareDiv.classList.add("share-button");
+      shareDiv.innerHTML = `
     <img class="share-img" src="../assets/images/share.png" alt="Share">
     <span class="share-count">0</span>
     `;
-    
-    // Append buttons to the button container
-    buttonContainer.appendChild(likeDiv);
-    buttonContainer.appendChild(commentDiv);
-    buttonContainer.appendChild(shareDiv);
-    
-    // Append the button container to the post
-    postDiv.appendChild(buttonContainer);
+
+      // Append buttons to the button container
+      buttonContainer.appendChild(likeDiv);
+      buttonContainer.appendChild(commentDiv);
+      buttonContainer.appendChild(shareDiv);
+
+      // Append the button container to the post
+      postDiv.appendChild(buttonContainer);
 
       // Show/Hide the options menu when clicking the three dots button
       const optionsButton = postDiv.querySelector(".options-button");
       const optionsMenu = postDiv.querySelector(".options-menu");
 
       if (post.author !== currentUsername) {
-        optionsButton.style.display = "none"
+        optionsButton.style.display = "none";
+      } else {
+        optionsButton.addEventListener("click", () => {
+          const isVisible = optionsMenu.style.display === "block";
+          optionsMenu.style.display = isVisible ? "none" : "block";
+        });
       }
-      else{
-      optionsButton.addEventListener("click", () => {
-        const isVisible = optionsMenu.style.display === "block";
-        optionsMenu.style.display = isVisible ? "none" : "block";
-      });
-      }
-  
+
       // Event listener for delete button
       const deleteButton = postDiv.querySelector(".delete-post");
 
-      deleteButton.addEventListener("click",async()=>{
-
-        const confirmDelete = confirm("Are you sure you want to delete this post?");
+      deleteButton.addEventListener("click", async () => {
+        const confirmDelete = confirm(
+          "Are you sure you want to delete this post?"
+        );
         if (confirmDelete) {
           try {
             // Make DELETE request to Supabase
             const { error } = await supabase
-              .from("posts") 
+              .from("posts")
               .delete()
-              .eq("id", post.id); 
-      
+              .eq("id", post.id);
+
             if (error) {
               console.error("Error deleting post from Supabase:", error);
               alert("Failed to delete the post. Please try again.");
             } else {
-              postDiv.remove(); 
+              postDiv.remove();
               alert("Post deleted successfully.");
             }
           } catch (err) {
@@ -406,23 +539,15 @@ async function fetchAllPosts() {
             alert("An unexpected error occurred. Please try again.");
           }
         }
-      })
-    
-    postContainer.appendChild(postDiv);
+      });
 
-  });
-
-
+      postContainer.appendChild(postDiv);
+    });
   }
 }
 
-
-
-
 function formatDateTime(inputDatetime) {
-
-  const date = new Date(`${inputDatetime}Z`); 
-
+  const date = new Date(`${inputDatetime}Z`);
 
   const formattedDate = date.toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -444,7 +569,7 @@ function formatDateTime(inputDatetime) {
 const notificationIcon = document.getElementById("notifications");
 const dropdown = document.getElementById("notification-dropdown");
 
-const sampleNotifications = []; 
+const sampleNotifications = [];
 
 // Function to show notifications or "No notifications"
 function showNotifications() {
@@ -474,8 +599,64 @@ notificationIcon.addEventListener("click", () => {
   showNotifications();
 });
 
-
 const chatBox = document.getElementById("chatBox");
-chatBox.addEventListener("click", () =>{
-  window.location.href = "../chatBox.html"
-})
+chatBox.addEventListener("click", () => {
+  window.location.href = "../chatBox.html";
+});
+
+//search box
+const searchInput = document.getElementById("search");
+const dropdown1 = document.getElementById("dropdown1");
+
+// Event listener for search input
+searchInput.addEventListener("input", async function () {
+  const queryText = searchInput.value.toLowerCase();
+  dropdown1.innerHTML = ""; // Clear previous results
+
+  if (queryText) {
+    try {
+      // Query Firestore
+      const usersRef = collection(db, "users"); // Replace 'users' with your collection name
+      const q = query(
+        usersRef,
+        where("username", ">=", queryText),
+        where("username", "<=", queryText + "\uf8ff")
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        dropdown1.style.display = "block";
+        querySnapshot.forEach((doc) => {
+          const user = doc.data();
+          const item = document.createElement("div");
+          item.classList.add("dropdown-item");
+          item.textContent = user.username;
+          item.addEventListener("click", function () {
+            searchInput.value = user.username; // Set input value to clicked item
+            dropdown1.style.display = "none"; // Hide dropdown
+          });
+          dropdown1.appendChild(item);
+        });
+      } else {
+        // Show a single "Not found" message
+        dropdown1.innerHTML = ""; // Ensure dropdown is cleared first
+        const notFoundItem = document.createElement("div");
+        notFoundItem.classList.add("dropdown-item");
+        notFoundItem.textContent = "Not found";
+        dropdown1.appendChild(notFoundItem);
+        dropdown1.style.display = "block";
+      }
+    } catch (error) {
+      console.error("Error fetching Firestore data:", error);
+    }
+  } else {
+    dropdown1.style.display = "none";
+  }
+});
+
+// Hide dropdown when clicking outside the search box
+document.addEventListener("click", function (e) {
+  if (!document.querySelector(".search-box").contains(e.target)) {
+    dropdown1.style.display = "none";
+  }
+});

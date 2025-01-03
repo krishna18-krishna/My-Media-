@@ -17,8 +17,8 @@
     border-bottom: 1px solid #ccc;
 }
 
-.settings-icon img {
-    width: 30px;
+.settings-icon i{
+    width: 20px;
     cursor: pointer;
 }
 
@@ -45,9 +45,7 @@
     border: 0.5px solid #ccc;
     width: 100%;
 } */
-.line{
-    border: 0.5px solid black;
-}
+
 .line1{
     border: 0.5px solid black;
     height: 800px;
@@ -59,11 +57,34 @@
     flex-direction: row;
     align-items: center;
 }
+@media (max-width: 768px){
+    .container{
+        display: flex;
+        flex-direction: column;
+    }
+}
+@media (max-width: 768px){
+    #profile-container{
+        margin-top: 100px;
+    } 
+}
+@media (max-width: 768px){
+    .line1{
+        display: none;
+    }
+}
+@media (max-width: 768px){
+    .authors-posts{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+}
 
 #profile-container {
     text-align: center;
-    margin: 20px 200px;
-    margin-top: -200px;
+    margin: 20px 70px;
+
 }
 
 .profile-image-container {
@@ -97,20 +118,34 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: bold;
-    margin-top: 30px;
+    margin-top: 10px;
 }
 
 .edit-profile button:hover {
     background-color: #007acc;
 }
 
-/* Create Post Section */
-.create-post {
-    margin-top: -500px;
-    margin-left:50px;
+/* details-containers */
+.details-containers{
+    display: inline-flex;
+    gap: 80px;
+    margin-left: 20px;
 }
 
-.create-post img {
-    width: 150px;
-    cursor: pointer;
+.authors-posts{
+    height: 100%;
+    width: 100%;
+    margin-bottom: 320px;
+}
+.post-image{
+    margin-left: 20px;
+    margin-top: 20px;
+    width: 300px;
+    height : 200px;
+}
+.no-posts-message{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
 }

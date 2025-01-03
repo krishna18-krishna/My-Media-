@@ -2,25 +2,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import {
     getAuth,
-
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
     getFirestore,
     collection,
     getDocs,
-    doc,
     query,
     where
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-import { getDatabase, } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-import {
-    getStorage,
-    ref as storeRef,
 
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
-
-//Import supabase service
+// Import Supabase service
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.27.0/+esm"; 
 
 // Firebase configuration
@@ -38,22 +30,18 @@ const firebaseConfig = {
 const supabaseUrl = "https://fwqpzgoprwvmvgmbivac.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cXB6Z29wcnd2bXZnbWJpdmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM4Mjk1NDEsImV4cCI6MjA0OTQwNTU0MX0.q9avx0jhYYVCch89S0GAtk2fJMhKbxxMHa6Qu7sktP4";
-console.log(supabaseUrl);
-console.log(supabaseKey);
-
-
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Initialize Supabase
 const supabase = createClient(supabaseUrl, supabaseKey);
-console.log(supabase);
 
 // DOM Elements
 const usernameElement = document.getElementById("username");
-const fullnameElement = document.getElementById("fullname"); // Element for fullname
+const fullnameElement = document.getElementById("fullname");
 const backButton = document.getElementById("back-button");
 
 // Function to fetch user details from Firestore by email
@@ -64,47 +52,78 @@ async function fetchUsername(email) {
 
         if (!querySnapshot.empty) {
             const userDoc = querySnapshot.docs[0];
-            const userData = userDoc.data();
-            const userId = userDoc.id;
-
-            return { ...userData, id: userId };
+            return userDoc.data();
         } else {
-            console.log("No user found with the provided email");
+            console.error("No user found with email:", email);
             return null;
         }
     } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Firestore permission error:", error.code, error.message, error);
         return null;
     }
 }
-
+/* let username ;
 // Listen for authentication state changes
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        console.log("Authenticated user:", user.email);
+
         try {
             const userDetails = await fetchUsername(user.email);
-            if (userDetails) {
-                // Display username
-                
-                usernameElement.textContent = userDetails.username || "No username found";
-               
-                // Display fullname
-           
-                 document.querySelector(".fullname").innerHTML = userDetails.fullname;
-            
 
-                console.log("User details fetched: ", userDetails);
+            if (userDetails) {
+                // Safely update DOM elements if they exist
+                if (usernameElement) usernameElement.textContent = userDetails.username || "No username found";
+                if (fullnameElement) fullnameElement.textContent = userDetails.fullname || "No fullname available";
+
+                console.log("User details fetched:", userDetails);
             } else {
                 if (usernameElement) usernameElement.textContent = "User not found";
                 if (fullnameElement) fullnameElement.textContent = "No fullname available";
             }
         } catch (error) {
             console.error("Error fetching user details:", error);
+
             if (usernameElement) usernameElement.textContent = "Error fetching user details";
             if (fullnameElement) fullnameElement.textContent = "Error loading fullname";
         }
     } else {
-        // No user is signed in
+        // Handle when no user is signed in
+        if (usernameElement) usernameElement.textContent = "Not signed in";
+        if (fullnameElement) fullnameElement.textContent = "Not signed in";
+    }
+}); */
+
+
+let userName ;
+// Listen for authentication state changes
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        console.log("Authenticated user:", user.email);
+
+        try {
+            const userDetails = await fetchUsername(user.email);
+
+            if (userDetails) {
+                // Store the username
+                const userName = userDetails.username;
+
+                // Update DOM elements with user details if needed
+                if (usernameElement) usernameElement.textContent = userName;
+                if (fullnameElement) fullnameElement.textContent = userDetails.fullname || "No fullname available";
+
+                console.log("User details fetched:", userDetails);
+
+                // Fetch and display the user's posts with images
+                fetchPostImages(userName);
+            } else {
+                console.error("User details not found");
+            }
+        } catch (error) {
+            console.error("Error fetching user details:", error);
+        }
+    } else {
+        // Handle when no user is signed in
         if (usernameElement) usernameElement.textContent = "Not signed in";
         if (fullnameElement) fullnameElement.textContent = "Not signed in";
     }
@@ -112,43 +131,77 @@ onAuthStateChanged(auth, async (user) => {
 
 
 
+ // Function to fetch posts with image URLs
+ async function fetchPostImages(userName) {
+    if (!userName) {
+        console.error("No username provided. Cannot fetch posts.");
+        return;
+    }
+
+    try {
+        // Query the 'posts' table, filtering by the signed-in user's username
+        const { data: posts, error } = await supabase
+            .from("posts")
+            .select("author, imageSrc")
+            .eq("author", userName); // Filter posts by author
+
+        if (error) {
+            console.error("Supabase Query Error:", error);
+            throw error;
+        }
+
+        renderPostImages(posts);
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        const authorsPostsDiv = document.querySelector(".authors-posts");
+        if (authorsPostsDiv) {
+            authorsPostsDiv.textContent = "Error loading posts.";
+        }
+    }
+}
+
+// Function to render only images in the DOM
+function renderPostImages(posts) {
+    const authorsPostsDiv = document.querySelector(".authors-posts");
+    if (!authorsPostsDiv) return;
+
+    // Clear any existing content
+    authorsPostsDiv.innerHTML = "";
+
+    if (!posts || posts.length === 0) {
+        const noPostsMessage = document.createElement("div");
+        noPostsMessage.classList.add("no-posts-message");
+        noPostsMessage.textContent = "No post added";
+        authorsPostsDiv.appendChild(noPostsMessage);
+        return;
+    }
+
+    // Create and append images dynamically
+    posts.forEach((post) => {
+        if (post.imageSrc) {
+            const imageElement = document.createElement("img");
+            imageElement.classList.add("post-image");
+            imageElement.src = post.imageSrc;
+            imageElement.alt = `Image by ${post.author}`;
+            authorsPostsDiv.appendChild(imageElement);
+        }
+        else if(!post.imageSrc){
+            authorsPostsDiv.textContent = "No post add" 
+        }
+    });
+}
+
+
 // Event listener for back button
 if (backButton) {
     backButton.addEventListener("click", () => {
-        window.location.href = "./homepage.html"; // Replace with the actual path to your home page
+        window.location.href = "./homepage.html"; // Replace with your actual home page path
     });
 } else {
     console.error("Back button not found in DOM.");
 }
 
 export { fetchUsername };
-
-let userID = null;
-
-// Fetch and console the authors' details
-async function getAuthors() {
-    try {
-        const { data, error } = await supabase
-            .from("Authors") // Replace "Authors" with your actual table name
-            .select("*"); // Adjust the columns you want to retrieve, e.g., `.select("name, bio")`
-
-        if (error) {
-            console.error("Error fetching authors:", error);
-            return;
-        }
-
-        if (data && data.length > 0) {
-            console.log("Authors Data:", data);
-        } else {
-            console.log("No authors found.");
-        }
-    } catch (error) {
-        console.error("Unexpected error fetching authors:", error);
-    }
-}
-
-// Call the function
-getAuthors();
 
 
 

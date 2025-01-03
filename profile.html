@@ -29,12 +29,12 @@
         <nav id="nav-header">
             <div class="nav-right">
                 <div id="back-button">
-                    <i class="fa-solid fa-arrow-left"></i>
+                    <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
                 </div>
                 <div id="username" class="username"></div>
             </div>
             <div class="settings-icon">
-                <img src="./assets/images/setting-icon.png" alt="Settings">
+                <i class="fa-solid fa-gear fa-2xl" style="color: #ffffff;"></i>
             </div>
         </nav>
     </header>
@@ -48,15 +48,26 @@
                     <input type="file" id="fileInput" style="display:none;" accept="image/*" />
                     <div id="uploadStatus"></div>
                 </div>
+                <div class="details-containers">
+                    <div class="posts-container">
+                        <div class="post">Post</div>
+                        <div class="post-count">0</div>
+                    </div>
+                    <div class="followers-container">
+                        <div class="followers">Followers</div>
+                        <div class="followers-count">0</div>
+                    </div>
+                    <div class="following-container">
+                        <div class="following">Following</div>
+                        <div class="following-count">0</div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="line1"></div>
-        <div class="create-post">
-            <div class="create-post-container" id="uploadPost">
-            </div>
-        </div>
+        <div class="authors-posts"></div>
     </div>
     <div id="uploadedImagePreview"></div>
-    <script src="./js/profile.js" type="module"></script>
+    <script type="module" src="./js/profile.js" defer></script>
 </body>
 </html>
