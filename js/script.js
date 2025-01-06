@@ -256,16 +256,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.showLogoutAlert = function () {
     const logoutAlert = document.getElementById("logout-alert");
-    if (logoutAlert) {
+    if (logoutAlert && overlay) {
       logoutAlert.style.display = "block";
+      Object.assign(overlay.style, {
+        display: "block",
+        position: "fixed",
+        top: "0",
+        left: "0",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        zIndex: "999",
+      });
     } else {
       console.error("Logout alert element not found.");
     }
   };
 
   window.hideLogoutAlert = function () {
+    const overlay = document.querySelector(".overlay");
     const logoutAlert = document.getElementById("logout-alert");
-    if (logoutAlert) {
+    if (logoutAlert && overlay) {
+      overlay.style.display = "none";
       logoutAlert.style.display = "none";
     } else {
       console.error("Logout alert element not found.");
@@ -310,13 +322,19 @@ async function fetchAllPosts() {
     <img src="assets/images/profile-pic.jpg" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-right: 10px;">
     <div class="userInfo">
       <span style="font-weight: bold;">${post.author}</span>
-      <span style="font-size: 12px; color: #555;">${dateTime.date} ${dateTime.time}</span>
+      <span style="font-size: 12px; color: #555;">${dateTime.date} ${
+        dateTime.time
+      }</span>
     </div>
-    ${post.author !== currentUsername ? `
+    ${
+      post.author !== currentUsername
+        ? `
       <div id="follow-button">
         <button id="followButton">Follow</button>
       </div>
-    ` : ''}
+    `
+        : ""
+    }
     <div class="post-options" style="margin-left: auto; position: relative;">
       <button class="options-button" style="background: none; border: none; cursor: pointer; font-size: 20px;">⋮</button>
       <div class="options-menu" style="display: none; position: absolute; right: 0; background: white; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
@@ -363,114 +381,97 @@ async function fetchAllPosts() {
       const postId = post.id; // Replace with the post's UUID
       const authorName = currentUsername; // Replace with the user's name
 
-      // Fetch the initial like count for the post
+      // Fetch initial like data
       async function fetchLikes() {
         try {
-          // Fetch total likes for the post
-          const { count, error } = await supabase
+          const {
+            data: likes,
+            count,
+            error,
+          } = await supabase
             .from("likes")
             .select("*", { count: "exact" })
             .eq("post_id", postId);
 
           if (error) {
-            console.error("Error fetching total likes:", error);
+            console.error("Error fetching likes:", error);
             return;
           }
 
-          likeCount = count || 0; // Use the count value from the query
-          likeDiv.querySelector(".like-count").textContent = likeCount;
+          likeCount = count || 0;
+          liked = likes.some((like) => like.author_name === authorName);
 
-          // Check if the current user has liked the post
-          liked = await checkIfLiked();
-          updateLikeIcon();
+          updateUI();
         } catch (err) {
           console.error("Error fetching likes:", err);
         }
       }
 
-      // Check if the user has already liked the post
-      async function checkIfLiked() {
-        const { data, error } = await supabase
-          .from("likes")
-          .select("*")
-          .eq("post_id", postId)
-          .eq("author_name", authorName);
-
-        if (error) {
-          console.error("Error checking like status:", error);
-          return false;
+      // Handle like or unlike action
+      async function handleLike() {
+        if (liked) {
+          // Unlike
+          await toggleLike("unlike");
+        } else {
+          // Like
+          await toggleLike("like");
         }
-
-        return data.length > 0; // Return true if a record exists
       }
 
-      // Handle like or unlike
-      async function handleLike() {
+      // Toggle like/unlike
+      async function toggleLike(action) {
         try {
-          if (!liked) {
-            // Upsert ensures no duplicate rows
-            const { error: upsertError } = await supabase
+          if (action === "like") {
+            const { error } = await supabase
               .from("likes")
               .upsert(
                 { post_id: postId, author_name: authorName },
                 { onConflict: ["post_id", "author_name"] }
               );
 
-            if (upsertError) {
-              console.error("Error liking post:", upsertError);
-              return;
-            }
-            // Send a notification to the post author
-            await sendNotification(author, `${authorName} liked your post.`);
+            if (error) throw error;
+
+            likeCount++;
           } else {
-            // Remove the like
-            const { error: deleteError } = await supabase
+            const { error } = await supabase
               .from("likes")
               .delete()
               .eq("post_id", postId)
               .eq("author_name", authorName);
 
-            if (deleteError) {
-              console.error("Error unliking post:", deleteError);
-              return;
-            }
+            if (error) throw error;
+
+            likeCount--;
           }
 
-          // Update the like count in the UI
-          likeDiv.querySelector(".like-count").textContent = likeCount;
-          liked = !liked; // Toggle the liked state
-          updateLikeIcon();
+          liked = !liked;
+          updateUI();
         } catch (error) {
-          console.error("Error handling like:", error);
+          console.error(
+            `Error ${action === "like" ? "liking" : "unliking"} post:`,
+            error
+          );
         }
       }
 
-      // Update the like button icon
-      function updateLikeIcon() {
+      // Update UI
+      function updateUI() {
+        likeDiv.querySelector(".like-count").textContent = likeCount;
         likeDiv.querySelector(".like-img").src = liked
           ? "../assets/images/like-blue.png"
           : "../assets/images/like.png";
       }
 
-      async function sendNotification(toUser, message) {
-        try {
-          const { error } = await supabase.from("notifications").insert({
-            recipient: toUser,
-            message: message,
-            read: false, // Mark notification as unread
-            timestamp: new Date().toISOString(),
-          });
+      // Add click event with debouncing
+      let isProcessing = false;
+      likeDiv.addEventListener("click", async () => {
+        if (isProcessing) return;
+        isProcessing = true;
 
-          if (error) {
-            console.error("Error sending notification:", error);
-          }
-        } catch (err) {
-          console.error("Error in sendNotification:", err);
-        }
-      }
+        await handleLike();
 
-      // Add click event to the like button
-      likeDiv.addEventListener("click", handleLike);
+        isProcessing = false;
+      });
 
       // Fetch initial likes on page load
       fetchLikes();
@@ -482,13 +483,71 @@ async function fetchAllPosts() {
     <img class="comment-img" src="../assets/images/comments.png" alt="Comments">
     <span class="comment-count">0</span>
     `;
+      const commentBox = document.createElement("div");
+      commentBox.classList.add("comment-box");
+      commentBox.innerHTML = `
+      <div class="comment-container">
+          <!-- Header with close button -->
+          <div class="comment-header">
+            <div class="close-button" id="closeOverlayButton">×</div>
+          </div>
+          <!-- Footer with input and send button -->
+          <div class="comment-footer">
+            <span class="emoji">😊</span>
+            <input class="comment-input" id="commentInput" type="text" placeholder="Write your comment...." maxlength="500" />
+            <div class="send-button" id="sendButton">➤</div>
+          </div>
+        </div>
+      </div> 
+    `;
+      commentDiv.addEventListener("click", () => {
+        const overlay = document.querySelector(".overlay");
+        if (overlay  && commentBox) {
+          Object.assign(overlay.style, {
+            display: "block",
+            position: "fixed",
+            top: "0",
+            left: "0",
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: "999",
+          });
+      buttonContainer.appendChild(commentBox);
+
+        } else {
+          console.error("Overlay not found");
+        }
+      });
+
+      commentBox.addEventListener("click", (event) => {
+        const overlay = document.querySelector(".overlay");
+        if (event.target.id === "closeOverlayButton") {
+          commentBox.style.display = "none"; // Hide the overlay
+          overlay.style.display = "none"
+        }
+      });
+
+      commentBox.addEventListener("click", (event) => {
+        if (event.target.id === "sendButton") {
+          const commentInput = document.getElementById("commentInput");
+          const comment = commentInput.value.trim();
+          if (comment) {
+            alert(`Comment sent: ${comment}`);
+            commentInput.value = ""; // Clear the input field
+          } else {
+            alert("Please write a comment before sending.");
+          }
+        }
+      });
+
 
       // Share button
       const shareDiv = document.createElement("div");
       shareDiv.classList.add("share-button");
       shareDiv.innerHTML = `
     <img class="share-img" src="../assets/images/share.png" alt="Share">
-    <span class="share-count">0</span>
+      <span class="share-count">0</span>
     `;
 
       // Append buttons to the button container

@@ -89,7 +89,7 @@ nav {
 /* search box */
 .search-box {
   position: relative;
-  width: 300px;
+  width: 350px;
 }
 
 .search-box img {
@@ -104,13 +104,14 @@ nav {
   width: 100%;
   padding: 10px 10px 10px 40px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+
   box-sizing: border-box;
+  border-radius: 50px;
 }
 
 .dropdown1 {
   position: absolute;
-  top: 37px;
+  top: 43px;
   left: 0px;
   width: 100%;
   background-color: rgb(255, 255, 255);
@@ -119,6 +120,8 @@ nav {
   overflow-y: auto;
   display: none;
   z-index: 1000;
+  scrollbar-width: none;
+  scroll-behavior: auto;
 }
 
 .dropdown-item {
@@ -206,15 +209,15 @@ nav {
 /*Drop down*/
 .settings-menu {
   position: absolute;
-  width: 650%;
-  max-width: 250px;
+  width: 670%;
+  max-width: 270px;
   height: 155px;
   background: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
   border-radius: 4px;
   overflow: hidden;
-  top: 120%;
-  right: 0px;
+  top: 100%;
+  right: 10px;
   display: none;
 }
 .settings-menu a {
@@ -239,6 +242,7 @@ nav {
   background-color: #000000;
   color: #fff;
   left: 550px;
+  z-index: 1000;
   box-shadow: #626262;
 }
 .alert-content {
@@ -415,3 +419,87 @@ nav {
   display: block;
 }
 
+
+
+/* comment container */
+.comment-box{
+  position: fixed;
+  top: 300px;
+  left: 600px;
+  display: flex;
+
+  z-index: 1000;
+}
+
+.comment-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+}
+
+.comment-header {
+  width: 100%;
+  padding: 10px;
+  background: #4f4f4f;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.close-button {
+  width: 30px;
+  height: 30px;
+  background-color: #000;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.comment-footer {
+  width: 100%;
+  padding: 10px;
+  background: #999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0 0 10px 10px;
+}
+
+.emoji {
+  font-size: 24px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 20px;
+  background: #f0f0f0;
+}
+
+.send-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 10px;
+}
