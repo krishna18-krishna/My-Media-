@@ -1,7 +1,7 @@
-// Import the Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, signOut, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
 
 // Firebase configuration
 const firebaseConfig = {
@@ -18,6 +18,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+
+// Redirect if logged in
+/* async function checkLoginStatus() {
+  const user = auth.currentUser;
+  if (user) {
+      const userDoc = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDoc);
+      if (userSnapshot.exists() && userSnapshot.data().loginStatus) {
+          window.location.href = "./homepage.html";
+      }
+  }
+}
+checkLoginStatus(); */
 
 // Login form elements
 const loginForm = document.getElementById("loginForm");
@@ -38,23 +51,35 @@ loginForm.addEventListener("submit", (event) => {
   emailError.textContent = "";
   passwordError.textContent = "";
 
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  /* const emailPattern1 = /^[^\s@]+@[^0-9][^\s@]+\.[a-z]{2,}$/i; */
+  const emailPattern1 = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
 
-  // Check if email is empty
-  if (email.value.trim() === "") {
-    emailError.textContent = "Email is required";
-    valid = false;
-  }
-  else if (!emailPattern.test(email.value.trim())) {
-    emailError.textContent = "Email is invalid";
-    valid = false;
-  }
+    if (email.value.trim() === "") {
+      emailError.textContent = "Email is required.";
+      valid = false;
+    } else if (!emailPattern1.test(email.value.trim())) {
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    } else if (email.value.includes("\\")) { 
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    } else if(email.value.includes("//")){
+      emailError.textContent = "Email is invalid.";
+      valid = false
+    }
+    else if (!emailPattern1.test(email.value.trim())) {
+      emailError.textContent = "Please enter a valid email.";
+      valid = false;
+    } else if (/@[0-9]/.test(email.value.trim())) { 
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    }
 
   // Check if password is empty
   if (password.value.trim() === "") {
     passwordError.textContent = "Password is required";
     valid = false;
-  } else if (password.value.length < 8) { // Check password length
+  } else if (password.value.length < 8) { 
     passwordError.textContent = "Password must be at least 8 characters";
     valid = false;
   }
@@ -66,7 +91,7 @@ loginForm.addEventListener("submit", (event) => {
         // Signed in successfully
         const user = userCredential.user;
         console.log("User:", user);
-        window.location.href = "./homepage.html"; // Redirect to homepage
+        window.location.href = "./homepage.html"; 
       })
       .catch((error) => {
         // Handle login errors
@@ -77,8 +102,11 @@ loginForm.addEventListener("submit", (event) => {
         } else if (errorCode === 'auth/user-not-found') {
           emailError.textContent = "User not found.";
         } else {
-          alert("Invalid Email and Password");
+          /* alert("Invalid Email and Password"); */
+          const generalError = document.getElementById("emailError");
+          generalError.textContent = "Enter a valid email or password";
+          generalError.style.display = "block"; 
         }
       });
   }
-});
+}); 

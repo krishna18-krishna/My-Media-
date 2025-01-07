@@ -2,77 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My media</title>
+    <title>My Media</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" href="assets/images/ic_logo-2.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" 
+    integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" 
+    referrerpolicy="no-referrer" />
 </head>
 <body>
-    
-
     <nav>
         <div class="nav-left">
             <div class="logo">
-                <img src="./assets/images/ic_logo.png" alt="This is logo">
+                <div><span class="my">My</span><span class="media">media</span></div>
             </div>
             <ul>
-                <li><img src="assets/images/notification.png" alt="This is notification" class=""></li>
-                <li><img src="assets/images/inbox.png" alt="This is mail" class=""></li>
+                <li>
+                    <img src="assets/images/notification.png" alt="This is notification" id="notifications">
+                    
+                </li>
+                
+                <li><img src="assets/images/inbox.png" alt="This is mail" id="chatBox"></li>
 
             </ul>
+
         </div>
 
         <div class="nav-rigth">
             <div class="search-box">
                 <img src="assets/images/search.png" alt="This is search box">
-                <input type="search"  placeholder="Search">
+                <input type="search" placeholder="Search" id="search">
+                <div class="dropdown1" id="dropdown1"></div>
             </div>
             <div class="nav-user-icon online">
-                <img src="assets/images/profile-pic.jpg" alt="Profile">
+                <a href="#"><img src="assets/images/profile-pic.jpg" alt="Profile" id="userIcon"></a>
+                <div id="settings-menu" class="settings-menu">
+                    <a href="./profile.html">See your profile</a>
+                    <a href="#">Settings & Privacy</a>
+                    <a href="#" id="logout1" onclick="showLogoutAlert()">Logout</a>
+                </div>
             </div>
-        </div>
     </nav>
-
-        <div class="container">
-            <!-- ------------------------left-sidebar----------------------- -->
-            <!-- <div class="left-sidebar">
-                <div class="img-links">
-                    <a href="#"><img src="assets/images/news.png" alt="news">Latest News</a>
-                    <a href="#"><img src="assets/images/friends.png" alt="Friends">Friends</a>
-                    <a href="#"><img src="assets/images/group.png" alt="group">Group</a>
-                    <a href="#"><img src="assets/images/marketplace.png" alt="marketplace">Marketplace</a>
-                    <a href="#"><img src="assets/images/watch.png" alt="watch">Watch</a>
-                    <a href="#">See more</a>
-                </div>
-                <div class="shortcut-links">
-                    <p>Your Shortcuts</p>
-                    <a href="#"><img src="assets/images/shortcut-1.png" alt="">Web Developers</a>
-                    <a href="#"><img src="assets/images/shortcut-2.png" alt="">Web Design course</a>
-                    <a href="#"><img src="assets/images/shortcut-3.png" alt="">Full Stack Development</a>
-                    <a href="#"><img src="assets/images/shortcut-4.png" alt="">Website Experts</a>
-                </div>
-            </div> -->
-            <!-- ------------------------main-content----------------------- -->
-            <div class="main-content">
-
+    <div id="notification-dropdown" class="dropdown hidden"></div>
+    <div class="container">
+        
+        <div class="main-content"> 
+            <div class="stories">
+                
+            </div> 
+            <div class="overlay" style="display: none;""></div>
+            <div id="post-form" style="display:none; position: fixed;">
+                <textarea id="post-content" placeholder="Write something..."></textarea>
+                <input type="file" id="post-media" style="cursor: pointer;" accept="image/*, video/* " >
+                <button id="submit-post" onclick="submitPost()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Post</button>
+                <button id="cancel-post" onclick="hidePostForm()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Cancel</button>
+                <img id="imagePreview" src="#" alt="Image Preview" style="display: none;" />
             </div>
-            <!-- ------------------------right-sidebar----------------------- -->
-            <!-- <div class="right-sidebar">
-
-                <div class="sidebar-title">
-                    <h4>Events</h4>
-                    <a href="#">See All</a>
-                </div>
-
-            </div> -->
+            <div id="post-container">
+                
+            </div>
         </div>
+    </div>
+ 
+    <div id="logout-alert" class="logout-alert" style="display: none;">
+        <h1 class="alert-content">Are you sure you want to logout?</h1>
+        <div class="button">
+            <button class="yes" type="button" onclick="logout()">Yes</button>
+            <button class="no" type="button" onclick="hideLogoutAlert()">No</button>
+        </div>
+    </div>
 
-
-
-
-
-
-<script src=""></script>
+    <script type="module"  src="./js/script.js" defer></script>
 </body>
 </html>

@@ -16,12 +16,15 @@
             <h1>My media</h1>
             <h2>Registration</h2>
             <form id="registrationForm" novalidate>
+                
+                <input type="text" placeholder="Fullname" id="fullname" required minlength="3">
+                <span id="fullnameError" class="error" style="color: red;"></span>
 
                 <input type="email" placeholder="Email" id="email" required>
                 <span id="emailError" class="error" style="color: red;"></span>
 
-                <input type="text" placeholder="Fullname" id="fullname" required>
-                <span id="fullnameError" class="error" style="color: red;"></span>
+                 <input type="text" placeholder="Username" id="username" required> 
+                <span id="usernameError" class="error" style="color: red;"></span>
 
                 <input type="password" placeholder="Password" id="password" required>
                 <span id="passwordError" class="error" style="color: red;"></span>
@@ -29,11 +32,12 @@
                 <input type="password" placeholder="Confirm Password" id="confirmPassword" required>
                 <span id="confirmPasswordError" class="error" style="color: red;"></span>
 
-                <input type="text" placeholder="Username" id="username" required>
-                <span id="usernameError" class="error" style="color: red;"></span>
-
                 <button type="submit">Sign up</button>
                 <p>Already have an account? <a href="./index.html">Login</a></p>
+
+                <!--  <input type="text" placeholder="Username" id="username" required> -->
+                <span id="usernameError" class="error" style="color: red;"></span>
+
             </form>
         </div>
     </div>

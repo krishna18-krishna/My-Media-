@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -18,6 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // Registration form elements
 const registrationForm = document.getElementById("registrationForm");
@@ -34,62 +36,151 @@ const passwordError = document.getElementById("passwordError");
 const confirmPasswordError = document.getElementById("confirmPasswordError");
 const usernameError = document.getElementById("usernameError");
 
+// Function to check if username is already taken
+async function isUsernameAvailable(username) {
+  try {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.empty; // true if no matching username found
+  } catch (error) {
+    console.error("Error checking username availability:", error);
+    return false;
+  }
+}
+
 // Add submit event listener
-registrationForm.addEventListener("submit", (event) => {
+registrationForm.addEventListener("submit", async (event) => {
   event.preventDefault(); // Prevent default form submission behavior
   let valid = true;
 
   // Clear previous error messages
   emailError.textContent = "";
   fullnameError.textContent = "";
+  usernameError.textContent = "";
   passwordError.textContent = "";
   confirmPasswordError.textContent = "";
-  usernameError.textContent = "";
 
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  // Check if each field is empty and set error messages if necessary
-  if (email.value.trim() === "") {
-      emailError.textContent = "Email is required";
-      valid = false;
-  }
-  else if (!emailPattern.test(email.value.trim())) {
-    emailError.textContent = "Email is invalid";
-    valid = false;
-  }
+    const emailPattern = /^[^\s@]+@[^0-9][^\s@]+\.[a-z]{2,}$/i;
+    const emailPattern1 = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|io|co)$/i;
+    const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,}$/;
+    const usernamePattern = /^[a-z0-9_]+$/; // Only allows lowercase letters, numbers, and underscore
+    const hasSpace = /\s/; // Check for whitespace characters
+    const fullNamePattern = /^[a-zA-Z\s]+$/;
   
-  if (fullname.value.trim() === "") {
-      fullnameError.textContent = "Full name is required";
+    // Full name validation
+    if (fullname.value.trim() === "") {
+      fullnameError.textContent = "Full name is required.";
       valid = false;
-  }
-  if (username.value.trim() === "") {
-      usernameError.textContent = "Username is required";
+    } else if (fullname.value.trim().length < 3) {
+      fullnameError.textContent = "Full name must have at least 3 characters.";
       valid = false;
-  }
-  if (password.value.trim() === "") {
-      passwordError.textContent = "Password is required";
+    } else if (!fullNamePattern.test(fullname.value.trim())) {
+      fullnameError.textContent = "Full name cannot contain special characters or numbers.";
       valid = false;
-  }
-
-  // Check if passwords match
-  if (password.value !== confirmPassword.value) {
-      confirmPasswordError.textContent = "Passwords do not match";
+    }
+     if (hasSpace.test(fullname.value.trim())) {
+      fullnameError.textContent = "Full name cannot contain spaces.";
+      valid = false
+    }
+  
+  
+    // Email validation
+     if (email.value.trim() === "") {
+      emailError.textContent = "Email is required.";
       valid = false;
-  }
+    } else if (!emailPattern1.test(email.value.trim())) {
+      emailError.textContent = "Email is invalid.";
+      valid = false;
+    } else if (!emailPattern1.test(email.value.trim())) {
+      emailError.textContent = "Please enter a valid email.";
+      valid = false;
+    }
+    else if (!emailPattern1.test(email.value.trim())){
+      if(/@[0-9]/.test(email.value.trim())){
+        emailError.textContent = "Email is invalid.";
+        valid = false;
+      }
+    } 
+  
+      if (email.value.trim() === "") {
+        emailError.textContent = "Email is required.";
+        valid = false;
+      } else if (!emailPattern1.test(email.value.trim())) {
+        emailError.textContent = "Email is invalid.";
+        valid = false;
+      } else if (email.value.includes("\\")) { // Check for backslash
+        emailError.textContent = "Email is invalid.";
+        valid = false;
+      } else if(email.value.includes("//")){
+        emailError.textContent = "Email is invalid.";
+        valid = false
+      }
+      else if (!emailPattern1.test(email.value.trim())) {
+        emailError.textContent = "Please enter a valid email.";
+        valid = false;
+      } else if (/@[0-9]/.test(email.value.trim())) { // Ensure domain doesn't start with a number
+        emailError.textContent = "Email is invalid.";
+        valid = false;
+      }
+  
+    // Username validation
+    if (username.value.trim() === "") {
+      usernameError.textContent = "Username is required.";
+      valid = false;
+    } else if (!usernamePattern.test(username.value.trim())) {
+      usernameError.textContent = "Username can only contain lowercase letters, numbers, and underscores.";
+      valid = false;
+    }
+    else if (/\s/.test(username.value)) {
+      // Checks for any spaces within the username
+      usernameError.textContent = "Username cannot contain spaces.";
+      valid = false;
+    }
+    else if (username.value.trim().length < 4) {
+      usernameError.textContent = "Username must have at least 4 characters.";
+      valid = false;
+    } else if (!(await isUsernameAvailable(username.value.trim()))) {
+      usernameError.textContent = "Username is already taken.";
+      valid = false;
+    }
+  
+    // Password validation
+    if (password.value.trim() === "") {
+      passwordError.textContent = "Password is required.";
+      valid = false;
+    } else if (!passwordPattern.test(password.value.trim())) {
+      passwordError.textContent = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+      valid = false;
+    }
+  
+    // Confirm password validation
+    if (password.value !== confirmPassword.value) {
+      confirmPasswordError.textContent = "Passwords do not match.";
+      valid = false;
+    }
 
   // If form validation passes, create a new user
   if (valid) {
     createUserWithEmailAndPassword(auth, email.value, password.value)
-      .then((userCredential) => {
-        // Registration successful
+      .then(async (userCredential) => {
         const user = userCredential.user;
-        console.log("User:", user);
-        window.location.href="../../homepage.html";
+
+        // Save user details to Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          username: username.value.trim(),
+          email: email.value.trim(),
+          fullname: fullname.value.trim()
+        });
+
+        console.log("User registered:", user);
+        window.location.href = "./homepage.html";
       })
       .catch((error) => {
-        // Handle registration errors
         const errorCode = error.code;
         const errorMessage = error.message;
+        console.error("Error during registration:", errorMessage);
+
         if (errorCode === 'auth/email-already-in-use') {
           emailError.textContent = "Email is already in use.";
         } else if (errorCode === 'auth/invalid-email') {
@@ -97,7 +188,7 @@ registrationForm.addEventListener("submit", (event) => {
         } else if (errorCode === 'auth/weak-password') {
           passwordError.textContent = "Password should be at least 6 characters.";
         } else {
-          alert(errorMessage);
+          alert("An unexpected error occurred: " + errorMessage);
         }
       });
   }

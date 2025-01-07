@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My-media-Profile</title>
+    <link rel="stylesheet" href="./css/profile.css">
+    <link rel="icon" href="./assets/images/ic_logo-2.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" 
+    integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" 
+    referrerpolicy="no-referrer" />
+</head>
+<body>
+
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My-media-Profile</title>
+    <link rel="stylesheet" href="./css/profile.css">
+    <link rel="icon" href="./assets/images/ic_logo-2.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+<body>
+    <header>
+        <nav id="nav-header">
+            <div class="nav-right">
+                <div id="back-button">
+                    <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
+                </div>
+                <div id="username" class="username"></div>
+            </div>
+            <div class="settings-icon">
+                <i class="fa-solid fa-gear fa-2xl" style="color: #ffffff;"></i>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <div id="profile-container">
+            <div class="profile-image-container">
+                <img class="profile-image" src="./assets/images/profile-pic.jpg" alt="Profile Picture" id="profileImagePreview">
+                <div class="fullname" id="fullname"></div>
+                <div class="edit-profile">
+                    <button id="uploadButton">Edit Profile</button>
+                    <input type="file" id="fileInput" style="display:none;" accept="image/*" />
+                    <div id="uploadStatus"></div>
+                </div>
+                <div class="details-containers">
+                    <div class="posts-container">
+                        <div class="post">Post</div>
+                        <div class="post-count">0</div>
+                    </div>
+                    <div class="followers-container">
+                        <div class="followers">Followers</div>
+                        <div class="followers-count">0</div>
+                    </div>
+                    <div class="following-container">
+                        <div class="following">Following</div>
+                        <div class="following-count">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="line1"></div>
+        <div class="authors-posts"></div>
+    </div>
+    <div id="uploadedImagePreview"></div>
+    <script type="module" src="./js/profile.js" defer></script>
+</body>
+</html>
