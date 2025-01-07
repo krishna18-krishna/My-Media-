@@ -443,7 +443,7 @@ nav {
 }
 
 .comment-header {
-  width: 100%;
+  width: 400px;
   padding: 10px;
   background: #4f4f4f;
   display: flex;
@@ -465,8 +465,20 @@ nav {
   cursor: pointer;
 }
 
+.comments{
+  width: 400px;
+  height: 100%;
+  padding: 10px 10px 10px 10px;
+  color: #fff;
+  background-color: #000;
+}
+.comment-item{
+  display: flex;
+  flex-direction: column;
+}
+
 .comment-footer {
-  width: 100%;
+  width: 400px;
   padding: 10px;
   background: #999;
   display: flex;

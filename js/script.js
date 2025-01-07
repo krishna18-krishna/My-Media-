@@ -111,8 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const postContent = document.getElementById("post-content").value.trim();
     const postImageSrc = document.getElementById("imagePreview").src;
 
-    if (!postContent && (postImageSrc || postImageSrc === "#")) {
-      alert("Please write the content.");
+    if (!postContent || postImageSrc === "#" || postImageSrc) {
+      alert("Please provide both content and an image.");
       return;
     }
 
@@ -480,29 +480,34 @@ async function fetchAllPosts() {
       const commentDiv = document.createElement("div");
       commentDiv.classList.add("comment-button");
       commentDiv.innerHTML = `
-    <img class="comment-img" src="../assets/images/comments.png" alt="Comments">
-    <span class="comment-count">0</span>
-    `;
+  <img class="comment-img" src="../assets/images/comments.png" alt="Comments">
+  <span class="comment-count">0</span>
+`;
+
       const commentBox = document.createElement("div");
       commentBox.classList.add("comment-box");
       commentBox.innerHTML = `
-      <div class="comment-container">
-          <!-- Header with close button -->
-          <div class="comment-header">
-            <div class="close-button" id="closeOverlayButton">×</div>
-          </div>
-          <!-- Footer with input and send button -->
-          <div class="comment-footer">
-            <span class="emoji">😊</span>
-            <input class="comment-input" id="commentInput" type="text" placeholder="Write your comment...." maxlength="500" />
-            <div class="send-button" id="sendButton">➤</div>
-          </div>
-        </div>
-      </div> 
-    `;
+  <div class="comment-container">
+      <!-- Header with close button -->
+      <div class="comment-header">
+        <div class="close-button" id="closeOverlayButton">×</div>
+      </div>
+      <div class="comments"></div>
+      <!-- Footer with input and send button -->
+      <div class="comment-footer">
+        <span class="emoji">😊</span>
+        <input class="comment-input" id="commentInput" type="text" placeholder="Write your comment...." maxlength="500" />
+        <div class="send-button" id="sendButton">➤</div>
+      </div>
+    </div>
+  </div> 
+`;
+
+fetchAndDisplayComments(post.id)
+      // Display the comment box and overlay when comment button is clicked
       commentDiv.addEventListener("click", () => {
         const overlay = document.querySelector(".overlay");
-        if (overlay  && commentBox) {
+        if (overlay && commentBox) {
           Object.assign(overlay.style, {
             display: "block",
             position: "fixed",
@@ -513,34 +518,145 @@ async function fetchAllPosts() {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             zIndex: "999",
           });
-      buttonContainer.appendChild(commentBox);
-
+          buttonContainer.appendChild(commentBox);
         } else {
           console.error("Overlay not found");
         }
       });
 
+      // Close the comment box when the close button is clicked
       commentBox.addEventListener("click", (event) => {
         const overlay = document.querySelector(".overlay");
         if (event.target.id === "closeOverlayButton") {
           commentBox.style.display = "none"; // Hide the overlay
-          overlay.style.display = "none"
+          overlay.style.display = "none";
         }
       });
 
-      commentBox.addEventListener("click", (event) => {
+      // Handle sending a new comment
+      commentBox.addEventListener("click", async (event) => {
         if (event.target.id === "sendButton") {
           const commentInput = document.getElementById("commentInput");
           const comment = commentInput.value.trim();
+          const postId = post.id; // Ensure you have the current post ID available
+          const authorName = currentUsername; // Replace with the current author's username
+
           if (comment) {
-            alert(`Comment sent: ${comment}`);
-            commentInput.value = ""; // Clear the input field
+            try {
+              // Send the comment to the Supabase database
+              const { data, error } = await supabase
+                .from("comment")
+                .insert([
+                  {
+                    post_id: postId,
+                    author_name: authorName,
+                    comment_content: comment,
+                  },
+                ])
+                .select();
+
+              if (error) {
+                console.error(
+                  "Error inserting comment into Supabase:",
+                  error.message
+                );
+                alert("Failed to submit your comment. Please try again.");
+              } else {
+                console.log("Comment stored successfully:", data);
+
+                // Update the comment count after inserting the comment
+                fetchCommentCount(postId); // Update the count
+
+                // Clear the input field and update the UI
+                commentInput.value = "";
+                alert(`Comment sent: ${comment}`);
+
+                // Optionally fetch updated comments and display them
+                fetchAndDisplayComments(postId);
+              }
+            } catch (err) {
+              console.error("Error submitting comment:", err.message);
+              alert("An error occurred. Please try again.");
+            }
           } else {
             alert("Please write a comment before sending.");
           }
         }
       });
 
+// Fetch and display comments for the given post
+async function fetchAndDisplayComments(postId) {
+  if (!postId) {
+    console.error("Post ID is missing or invalid.");
+    return;
+  }
+
+  try {
+    // Query the database for comments specific to the post
+    const { data, error } = await supabase
+      .from("comment")
+      .select("*")
+      .eq("post_id", postId); // Filter by the specific post ID
+
+    if (error) {
+      console.error("Error fetching comments from Supabase:", error.message);
+    } else {
+      console.log("Comments fetched successfully:", data);
+
+      // Select the `.comments` container inside the `commentBox`
+      const commentsContainer = commentBox.querySelector(".comments");
+      if (!commentsContainer) {
+        console.error("Comments container not found.");
+        return;
+      }
+
+      commentsContainer.innerHTML = ""; // Clear existing comments
+
+      // Render the comments for the specific post
+      if (data.length > 0) {
+        data.forEach((comment) => {
+          const commentElement = document.createElement("div");
+          commentElement.classList.add("comment-item");
+          commentElement.innerHTML = `
+            <strong>${comment.author_name}</strong> ${comment.comment_content}
+          `;
+          commentsContainer.appendChild(commentElement);
+        });
+      } else {
+        // Display a message if no comments are found
+        commentsContainer.innerHTML = `<p>No comments yet. Be the first to comment!</p>`;
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching comments:", err.message);
+  }
+}
+
+
+      // Fetch the comment count for a given post and update the UI
+      async function fetchCommentCount(postId) {
+        try {
+          // Query to fetch the count of comments for the given post_id
+          const { count, error } = await supabase
+            .from("comment")
+            .select("*", { count: "exact" }) // Fetch count explicitly
+            .eq("post_id", postId); // Replace with your post ID variable
+      
+          if (error) {
+            console.error("Error fetching comment count from Supabase:", error.message);
+          } else {
+            // Update the comment count in the UI
+            const commentCountSpan = commentDiv.querySelector(".comment-count");
+            if (commentCountSpan) {
+              commentCountSpan.textContent = count; // Set the comment count
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching comment count:", err.message);
+        }
+      }
+      // When the page is loaded or when the post is displayed, fetch the comment count
+      fetchCommentCount(post.id); // Replace `post.id` with the correct post ID
 
       // Share button
       const shareDiv = document.createElement("div");
