@@ -503,7 +503,7 @@ async function fetchAllPosts() {
   </div> 
 `;
 
-fetchAndDisplayComments(post.id)
+      fetchAndDisplayComments(post.id);
       // Display the comment box and overlay when comment button is clicked
       commentDiv.addEventListener("click", () => {
         const overlay = document.querySelector(".overlay");
@@ -584,54 +584,72 @@ fetchAndDisplayComments(post.id)
         }
       });
 
-// Fetch and display comments for the given post
-async function fetchAndDisplayComments(postId) {
-  if (!postId) {
-    console.error("Post ID is missing or invalid.");
-    return;
-  }
+      // Fetch and display comments for the given post
+      async function fetchAndDisplayComments(postId) {
+        if (!postId) {
+          console.error("Post ID is missing or invalid.");
+          return;
+        }
 
-  try {
-    // Query the database for comments specific to the post
-    const { data, error } = await supabase
-      .from("comment")
-      .select("*")
-      .eq("post_id", postId); // Filter by the specific post ID
+        try {
+          // Query the database for comments specific to the post
+          const { data, error } = await supabase
+            .from("comment")
+            .select("*")
+            .eq("post_id", postId); // Filter by the specific post ID
 
-    if (error) {
-      console.error("Error fetching comments from Supabase:", error.message);
-    } else {
-      console.log("Comments fetched successfully:", data);
+          if (error) {
+            console.error(
+              "Error fetching comments from Supabase:",
+              error.message
+            );
+          } else {
+            console.log("Comments fetched successfully:", data);
 
-      // Select the `.comments` container inside the `commentBox`
-      const commentsContainer = commentBox.querySelector(".comments");
-      if (!commentsContainer) {
-        console.error("Comments container not found.");
-        return;
-      }
+            // Select the `.comments` container inside the `commentBox`
+            const commentsContainer = commentBox.querySelector(".comments");
+            if (!commentsContainer) {
+              console.error("Comments container not found.");
+              return;
+            }
 
-      commentsContainer.innerHTML = ""; // Clear existing comments
+            commentsContainer.innerHTML = ""; // Clear existing comments
 
-      // Render the comments for the specific post
-      if (data.length > 0) {
-        data.forEach((comment) => {
-          const commentElement = document.createElement("div");
-          commentElement.classList.add("comment-item");
-          commentElement.innerHTML = `
-            <strong>${comment.author_name}</strong> ${comment.comment_content}
+            // Render the comments for the specific post
+            if (data.length > 0) {
+              data.forEach((comment) => {
+                const commentElement = document.createElement("div");
+                commentElement.classList.add("comment-item");
+                commentElement.innerHTML = `
+                <div class = "commment-content">
+                  <strong>${comment.author_name}</strong> ${
+                  comment.comment_content
+                }
+                </div>
+                ${
+                  comment.author !== currentUsername
+                    ? `
+                <div class="comment-actions">
+                  <button class="menu-button">⋮</button>
+                  <div class="dropdown-menu hidden">
+                    <button class="delete-comment">Delete</button>
+                  </div>
+                </div>
+              `
+                    : ""
+                }
           `;
-          commentsContainer.appendChild(commentElement);
-        });
-      } else {
-        // Display a message if no comments are found
-        commentsContainer.innerHTML = `<p>No comments yet. Be the first to comment!</p>`;
+                commentsContainer.appendChild(commentElement);
+              });
+            } else {
+              // Display a message if no comments are found
+              commentsContainer.innerHTML = `<p style= "align-content: center;">No comments yet</p>`;
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching comments:", err.message);
+        }
       }
-    }
-  } catch (err) {
-    console.error("Error fetching comments:", err.message);
-  }
-}
-
 
       // Fetch the comment count for a given post and update the UI
       async function fetchCommentCount(postId) {
@@ -641,9 +659,12 @@ async function fetchAndDisplayComments(postId) {
             .from("comment")
             .select("*", { count: "exact" }) // Fetch count explicitly
             .eq("post_id", postId); // Replace with your post ID variable
-      
+
           if (error) {
-            console.error("Error fetching comment count from Supabase:", error.message);
+            console.error(
+              "Error fetching comment count from Supabase:",
+              error.message
+            );
           } else {
             // Update the comment count in the UI
             const commentCountSpan = commentDiv.querySelector(".comment-count");
