@@ -54,10 +54,10 @@
             <div class="overlay" style="display: none;""></div>
             <div id="post-form" style="display:none; position: fixed;">
                 <textarea id="post-content" placeholder="Write something..."></textarea>
-                <input type="file" id="post-media" style="cursor: pointer;" accept="image/*, video/* " >
+                <input type="file" id="post-media" style="cursor: pointer;" multiple accept="image/*, video/* " >
                 <button id="submit-post" onclick="submitPost()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Post</button>
                 <button id="cancel-post" onclick="hidePostForm()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Cancel</button>
-                <img id="imagePreview" src="#" alt="Image Preview" style="display: none;" />
+                <img id="imagePreview" src="" style="display: none;" />
             </div>
             <div id="post-container">
                 
@@ -72,6 +72,13 @@
             <button class="no" type="button" onclick="hideLogoutAlert()">No</button>
         </div>
     </div>
+    <div id="delete-popup" class="popup-overlay" style="display: none;">
+        <div class="popup">
+          <p>Are you sure you want to delete this post?</p>
+          <button id="confirm-delete" class="popup-button">Delete</button>
+          <button id="cancel-delete" class="popup-button">Cancel</button>
+        </div>
+      </div>
 
     <script type="module"  src="./js/script.js" defer></script>
 </body>
