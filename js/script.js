@@ -106,80 +106,89 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("imagePreview").style.display = "none";
   }
 
-// Submit post to Supabase
-async function submitPost() {
-  const postContent = document.getElementById("post-content").value.trim();
-  const postImageSrc = document.getElementById("imagePreview").src;
+  // Submit post to Supabase
+  async function submitPost() {
+    const postContent = document.getElementById("post-content").value.trim();
+    const postImageSrc = document.getElementById("imagePreview").src;
 
-  console.log("Post image source:", postImageSrc);
+    console.log("Post image source:", postImageSrc);
 
-  // Case 1: Content is written but no image is selected
-  if (postContent && (postImageSrc === "" || postImageSrc.includes("default-placeholder-path") || postImageSrc.includes("#"))) {
-    alert("Please upload an image to submit your post.");
-    return;
-  }
-
-  // Case 2: Neither content nor image is provided
-  if (!postContent && (postImageSrc === "" || postImageSrc.includes("default-placeholder-path") || postImageSrc.includes("#"))) {
-    alert("Please provide either content or an image to submit your post.");
-    return;
-  }
-
-  try {
-    console.log("Submitting post with content:", postContent);
-    console.log("Submitting post with imageSrc:", postImageSrc);
-
-    const { data, error } = await supabase
-      .from("posts")
-      .insert([
-        {
-          content: postContent,
-          imageSrc: postImageSrc,
-          author: currentUsername,
-        },
-      ])
-      .select();
-
-    if (error) {
-      console.error("Error storing post in Supabase:", error.message);
-    } else {
-      console.log("Post stored successfully in Supabase:", data);
+    // Case 1: Content is written but no image is selected
+    if (
+      postContent &&
+      (postImageSrc === "" ||
+        postImageSrc.includes("default-placeholder-path") ||
+        postImageSrc.includes("#"))
+    ) {
+      alert("Please upload an image to submit your post.");
+      return;
     }
-  } catch (err) {
-    console.error("Error submitting post:", err.message);
+
+    // Case 2: Neither content nor image is provided
+    if (
+      !postContent &&
+      (postImageSrc === "" ||
+        postImageSrc.includes("default-placeholder-path") ||
+        postImageSrc.includes("#"))
+    ) {
+      alert("Please provide either content or an image to submit your post.");
+      return;
+    }
+
+    try {
+      console.log("Submitting post with content:", postContent);
+      console.log("Submitting post with imageSrc:", postImageSrc);
+
+      const { data, error } = await supabase
+        .from("posts")
+        .insert([
+          {
+            content: postContent,
+            imageSrc: postImageSrc,
+            author: currentUsername,
+          },
+        ])
+        .select();
+
+      if (error) {
+        console.error("Error storing post in Supabase:", error.message);
+      } else {
+        console.log("Post stored successfully in Supabase:", data);
+      }
+    } catch (err) {
+      console.error("Error submitting post:", err.message);
+    }
+
+    clearForm();
+    hidePostForm();
+    fetchAllPosts();
   }
 
-  clearForm();
-  hidePostForm();
-  fetchAllPosts();
-}
+  // Attach function to the window for global access
+  window.submitPost = submitPost;
 
-// Attach function to the window for global access
-window.submitPost = submitPost;
+  // Handle media upload
+  const mediaInput = document.getElementById("post-media");
+  const imagePreview = document.getElementById("imagePreview");
 
-// Handle media upload
-const mediaInput = document.getElementById("post-media");
-const imagePreview = document.getElementById("imagePreview");
+  mediaInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
 
-mediaInput.addEventListener("change", (event) => {
-  const file = event.target.files[0];
-
-  if (file && file.type.startsWith("image")) {
-    const reader = new FileReader();
-    reader.onloadend = function () {
-      const mediaDataUrl = reader.result;
-      imagePreview.src = mediaDataUrl; // Set the valid image source
-      console.log("Image preview source set to:", mediaDataUrl);
-      imagePreview.style.display = "block";
-    };
-    reader.readAsDataURL(file);
-  } else {
-    alert("Please upload a valid image file.");
-    imagePreview.src = ""; // Clear the src if invalid
-    imagePreview.style.display = "none";
-  }
-});
-
+    if (file && file.type.startsWith("image")) {
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        const mediaDataUrl = reader.result;
+        imagePreview.src = mediaDataUrl; // Set the valid image source
+        console.log("Image preview source set to:", mediaDataUrl);
+        imagePreview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert("Please upload a valid image file.");
+      imagePreview.src = ""; // Clear the src if invalid
+      imagePreview.style.display = "none";
+    }
+  });
 
   // Add "Add Post" button
   const addPostButton = document.createElement("button");
@@ -579,8 +588,8 @@ async function fetchAllPosts() {
                 fetchCommentCount(postId); // Update the count
 
                 // Clear the input field and update the UI
-                commentInput.value = "";
-                alert(`Comment sent: ${comment}`);
+                commentInput.value = ""; /* 
+                alert(`Comment sent: ${comment}`); */
 
                 // Optionally fetch updated comments and display them
                 fetchAndDisplayComments(postId);
@@ -631,6 +640,7 @@ async function fetchAllPosts() {
               data.forEach((comment) => {
                 const commentElement = document.createElement("div");
                 commentElement.classList.add("comment-item");
+                const isAuthor = comment.author_name === currentUsername;
                 commentElement.innerHTML = `
                 <div class = "commment-content">
                   <strong>${comment.author_name}</strong> ${
@@ -638,7 +648,7 @@ async function fetchAllPosts() {
                 }
                 </div>
                 ${
-                  comment.author !== currentUsername
+                  isAuthor
                     ? `
                 <div class="comment-actions">
                   <button class="menu-button">⋮</button>
@@ -651,6 +661,31 @@ async function fetchAllPosts() {
                 }
           `;
                 commentsContainer.appendChild(commentElement);
+                // Add event listener to the three-dot menu
+                if (isAuthor) {
+                  const menuButton = commentElement.querySelector(".menu-button");
+                  const dropdownMenu = commentElement.querySelector(".dropdown-menu");
+      
+                  menuButton.addEventListener("click", () => {
+                    // Toggle the visibility of the dropdown menu
+                    dropdownMenu.classList.toggle("hidden");
+                  });
+      
+                  // Add event listener for the delete button
+                  const deleteButton = dropdownMenu.querySelector(".delete-comment");
+                  deleteButton.addEventListener("click", async (event) => {
+                    const commentId = event.target.getAttribute("data-comment-id");
+                    console.log("Fetched Comment ID:", commentId);
+      
+                    if (!commentId) {
+                      console.error("Comment ID is missing or undefined.");
+                      return;
+                    }
+      
+                    console.log("Comment ID to delete:", commentId); // Debugging log
+                    await deleteComment(commentId, postId);
+                  });
+                }
               });
             } else {
               // Display a message if no comments are found
@@ -659,6 +694,28 @@ async function fetchAllPosts() {
           }
         } catch (err) {
           console.error("Error fetching comments:", err.message);
+        }
+      }
+
+      // delete comment
+
+      async function deleteComment(commentId, postId) {
+        try {
+          const { error } = await supabase
+            .from("comment")
+            .delete()
+            .eq("id", commentId); // Replace `id` with the actual column name if different
+      
+          if (error) {
+            console.error("Error deleting comment:", error.message);
+            alert("Failed to delete the comment. Please try again.");
+          } else {
+            console.log("Comment deleted successfully.");
+            fetchAndDisplayComments(postId); // Refresh comments after deletion
+          }
+        } catch (err) {
+          console.error("Error deleting comment:", err.message);
+          alert("An error occurred while deleting the comment.");
         }
       }
 
@@ -706,78 +763,81 @@ async function fetchAllPosts() {
       // Append the button container to the post
       postDiv.appendChild(buttonContainer);
 
-// Show/Hide the options menu when clicking the three dots button
-const optionsButton = postDiv.querySelector(".options-button");
-const optionsMenu = postDiv.querySelector(".options-menu");
+      // Show/Hide the options menu when clicking the three dots button
+      const optionsButton = postDiv.querySelector(".options-button");
+      const optionsMenu = postDiv.querySelector(".options-menu");
 
-if (post.author !== currentUsername) {
-  optionsButton.style.display = "none";
-} else {
-  optionsButton.addEventListener("click", () => {
-    const isVisible = optionsMenu.style.display === "block";
-    optionsMenu.style.display = isVisible ? "none" : "block";
-  });
-}
+      if (post.author !== currentUsername) {
+        optionsButton.style.display = "none";
+      } else {
+        optionsButton.addEventListener("click", () => {
+          const isVisible = optionsMenu.style.display === "block";
+          optionsMenu.style.display = isVisible ? "none" : "block";
+        });
+      }
 
-// Event listener for delete button
-const deleteButton = postDiv.querySelector(".delete-post");
+      // Event listener for delete button
+      const deleteButton = postDiv.querySelector(".delete-post");
 
-deleteButton.addEventListener("click", () => {
-  // Create popup if it doesn't exist
-  let popup = document.querySelector("#delete-popup");
-  if (!popup) {
-    popup = document.createElement("div");
-    popup.id = "delete-popup";
-    popup.className = "popup-overlay";
-    popup.innerHTML = `
+      deleteButton.addEventListener("click", () => {
+        // Create popup if it doesn't exist
+        let popup = document.querySelector("#delete-popup");
+        if (!popup) {
+          popup = document.createElement("div");
+          popup.id = "delete-popup";
+          popup.className = "popup-overlay";
+          popup.innerHTML = `
       <div class="popup">
         <p>Are you sure you want to delete this post?</p>
-        <button id="confirm-delete" class="popup-button">Delete</button>
-        <button id="cancel-delete" class="popup-button">Cancel</button>
+        <button id="confirm-delete" class="popup-button" style = "background-color: red;">Delete</button>
+        <button id="cancel-delete" class="popup-button" style = "background-color: green;">Cancel</button>
       </div>
     `;
-    document.body.appendChild(popup);
-  }
+          document.body.appendChild(popup);
+        }
 
-  // Show the popup
-  popup.style.display = "flex";
+        // Show the popup
+        popup.style.display = "flex";
 
-  // Handle confirm delete
-  const confirmDeleteButton = popup.querySelector("#confirm-delete");
-  const cancelDeleteButton = popup.querySelector("#cancel-delete");
+        // Handle confirm delete
+        const confirmDeleteButton = popup.querySelector("#confirm-delete");
+        const cancelDeleteButton = popup.querySelector("#cancel-delete");
 
-  const confirmHandler = async () => {
-    try {
-      // Make DELETE request to Supabase
-      const { error } = await supabase.from("posts").delete().eq("id", post.id);
+        const confirmHandler = async () => {
+          try {
+            // Make DELETE request to Supabase
+            const { error } = await supabase
+              .from("posts")
+              .delete()
+              .eq("id", post.id);
 
-      if (error) {
-        console.error("Error deleting post from Supabase:", error);
-        alert("Failed to delete the post. Please try again.");
-      } else {
-        postDiv.remove();
-      }
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      alert("An unexpected error occurred. Please try again.");
-    } finally {
-      // Hide and clean up popup
-      popup.style.display = "none";
-      confirmDeleteButton.removeEventListener("click", confirmHandler);
-      cancelDeleteButton.removeEventListener("click", cancelHandler);
-    }
-  };
+            if (error) {
+              console.error("Error deleting post from Supabase:", error);
+              alert("Failed to delete the post. Please try again.");
+            } else {
+              postDiv.remove();
+            }
+          } catch (err) {
+            console.error("Unexpected error:", err);
+            alert("An unexpected error occurred. Please try again.");
+          } finally {
+            // Hide and clean up popup
+            popup.style.display = "none";
+            confirmDeleteButton.removeEventListener("click", confirmHandler);
+            cancelDeleteButton.removeEventListener("click", cancelHandler);
+          }
+        };
 
-  const cancelHandler = () => {
-    // Hide the popup
-    popup.style.display = "none";
-    confirmDeleteButton.removeEventListener("click", confirmHandler);
-    cancelDeleteButton.removeEventListener("click", cancelHandler);
-  };
+        const cancelHandler = () => {
+          // Hide the popup
+          popup.style.display = "none";
+          confirmDeleteButton.removeEventListener("click", confirmHandler);
+          cancelDeleteButton.removeEventListener("click", cancelHandler);
+        };
 
-  confirmDeleteButton.addEventListener("click", confirmHandler);
-  cancelDeleteButton.addEventListener("click", cancelHandler);
-});
+        confirmDeleteButton.addEventListener("click", confirmHandler);
+        cancelDeleteButton.addEventListener("click", cancelHandler);
+      });
 
       postContainer.appendChild(postDiv);
     });
