@@ -63,9 +63,12 @@ nav {
   margin-left: 30px;
 }
 
-@media (max-width: 789px) {
+@media (max-width: 790px) {
   .logo .media {
     display: none;
+  }
+  .container{
+    margin-left: 100px;
   }
   .nav-rigth .search-box {
     display: none;
@@ -78,7 +81,7 @@ nav {
 @media (max-width: 430px) {
   .container {
     display: flex;
-    margin-left: 100px;
+    margin-left: 280px;
     max-height: fit-content;
   }
   nav {
@@ -283,13 +286,17 @@ nav {
   }
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 420px) {
   .container {
-    margin-left: 100px;
+    margin-left: 270px;
   }
 }
-
+/* Responsive design */
+@media (max-width: 320px) {
+  .container {
+      margin-left: 280px;
+  }
+}
 .post-container {
   display: flex;
   flex-direction: column;
@@ -344,8 +351,8 @@ nav {
 }
 
 .popup {
-  background: white;
-  
+  background: rgb(0, 0, 0);
+  color: white;
   padding: 20px;
   width: 350px;
   height: 80px;

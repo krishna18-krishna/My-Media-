@@ -1,42 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Dosis:wght@200&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 /* Global Styling */
 * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    font-family: 'poppins', sans-serif ;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "poppins", sans-serif;
 }
 
 /* Header Styling */
 #nav-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #1876f2;
-    padding: 15px 20px;
-    border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1876f2;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ccc;
 }
 
-.settings-icon i{
-    width: 20px;
-    cursor: pointer;
+.settings-icon i {
+  width: 20px;
+  cursor: pointer;
 }
 
 .nav-right {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 #username {
-    margin-left: 20px;
-    font-size: 25px;
-    font-weight: bold;
-    color: #fff;
+  margin-left: 20px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #fff;
 }
 
 #back-button i {
-    font-size: 20px;
-    cursor: pointer;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 /* Line Divider */
@@ -46,105 +46,122 @@
     width: 100%;
 } */
 
-.line1{
-    border: 0.5px solid black;
-    height: 800px;
+.line1 {
+  border: 0.5px solid black;
+  height: 800px;
 }
 
 /* Container Styling */
 .container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .container {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+  }
 }
-@media (max-width: 768px){
-    .container{
-        display: flex;
-        flex-direction: column;
-    }
+@media (max-width: 768px) {
+  #profile-container {
+    margin-top: 100px;
+  }
 }
-@media (max-width: 768px){
-    #profile-container{
-        margin-top: 100px;
-    } 
+@media (max-width: 768px) {
+  .line1 {
+    display: none;
+  }
 }
-@media (max-width: 768px){
-    .line1{
-        display: none;
-    }
-}
-@media (max-width: 768px){
-    .authors-posts{
-        display: flex;
-        flex-wrap: wrap;
-    }
+@media (max-width: 768px) {
+  .authors-posts {
+    display: flex;
+    flex-wrap: wrap;
+  }
 }
 
 #profile-container {
-    text-align: center;
-    margin: 20px 70px;
-
+  text-align: center;
+  margin: 20px 70px;
 }
 
 .profile-image-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: start;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+}
+
+#uploadImageButton {
+  width: 40px;
+  height: 40px;
+  background-color: #00bfff;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
+  line-height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: absolute;
+  left: 130px;
+  top: 100px;
 }
 
 .profile-image {
-    height: 150px;
-    width: 150px;
+  height: 150px;
+  width: 150px;
 
-    border-radius: 50%;
-    object-fit: cover;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .fullname {
-    font-size: 25px;
-    font-weight: bold;
-    color: #333;
+  font-size: 25px;
+  font-weight: bold;
+  color: #333;
 }
 
 .edit-profile button {
-    padding: 10px 20px;
-    background-color: #38b6ff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #38b6ff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 10px;
 }
 
 .edit-profile button:hover {
-    background-color: #007acc;
+  background-color: #007acc;
 }
 
 /* details-containers */
-.details-containers{
-    display: inline-flex;
-    gap: 80px;
-    margin-left: 20px;
+.details-containers {
+  display: inline-flex;
+  gap: 80px;
+  margin-left: 20px;
 }
 
-.authors-posts{
-    height: 100%;
-    width: 100%;
-    margin-bottom: 0;
+.authors-posts {
+  height: 100%;
+  width: 100%;
+  margin-bottom: 0;
 }
-.post-image{
-    margin-left: 20px;
-    margin-top: 20px;
-    width: 300px;
-    height : 200px;
+.post-image {
+  margin-left: 20px;
+  margin-top: 20px;
+  width: 300px;
+  height: 200px;
 }
-.no-posts-message{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
+.no-posts-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
 }
