@@ -35,7 +35,7 @@ const supabaseKey =
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
+let profileId = null;
 // Initialize Supabase
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -91,6 +91,7 @@ onAuthStateChanged(auth, async (user) => {
             userDetails.fullname || "No fullname available";
 
         console.log("User details fetched:", userDetails);
+        fetchProfile();
 
         // Fetch and display the user's posts with images
         fetchPostImages(currentUsername);
@@ -181,16 +182,41 @@ if (backButton) {
 
 export { fetchUsername };
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const imageContainer = document.querySelector(".image-container");
 
   // Create an image element
-  const imageElement = document.createElement("img");
-  imageElement.classList.add("profile-image");
-  let profilrImageSrc = "./assets/images/profile-pic.jpg";
-  imageElement.src = profilrImageSrc;
-  imageElement.alt = "Profile Picture";
-  imageContainer.appendChild(imageElement);
+  const imageElement1 = document.createElement("img");
+  imageElement1.classList.add("profile-image");
+
+  // Set default image first
+  imageElement1.src = "./assets/images/profile-pic.jpg";
+  imageElement1.alt = "Profile Picture";
+  imageContainer.appendChild(imageElement1);
+
+  // Fetch the profile image from the database
+  try {
+    const { data, error } = await supabase
+      .from("profile_images")
+      .select("profile_image_url")
+      .eq("author_name", currentUsername) // Ensure this matches the logged-in user's identifier
+      .order("created_at", { ascending: false }) // Get the most recent image
+      .limit(1);
+
+    if (error) {
+      console.error("Error fetching profile image:", error.message);
+    } else if (data.length > 0) {
+      console.log("Fetched profile image data:", data);
+      const profileImageSrc = data[0].profile_image_url;
+
+      // Update the image source if a profile image exists
+      imageElement1.src = profileImageSrc;
+    } else {
+      console.log("No profile image found. Default image will be displayed.");
+    }
+  } catch (err) {
+    console.error("Error fetching profile image:", err.message);
+  }
 
   const editProfileButton = document.getElementById("editProfileButton");
   const overlay = document.createElement("div");
@@ -212,87 +238,86 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(editProfileForm);
 
   editProfileForm.innerHTML = `
-      <div id="editProfileForm" style="
-        display: block;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        z-index: 1000;
-        width: 300px;
-      ">
-        <div>
-          <img src="${profilrImageSrc}" id="previewImage" style="
-            width: 100px;
-            height: 100px;
-            margin: 0 auto;
-            border-radius: 50%;
-            object-fit: cover;
-          ">
-          <button id="uploadImageButton" style="
-            width: 40px;
-            height: 40px;
-            background-color: #00bfff;
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-          ">+</button>
-          <input type="file" id="fileInput" style="display:none;" accept="image/*" />
+        <div id="editProfileForm" style="
+          display: block;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          padding: 30px;
+          border-radius: 15px;
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+          text-align: center;
+          z-index: 1000;
+          width: 400px;
+          height: 300px;
+        ">
+          <div>
+            <img src="${imageElement1.src}" id="previewImage"  class ="image-container" style="
+              width: 100px;
+              height: 100px;
+              margin: 0 auto;
+              border-radius: 50%;
+              object-fit: cover;
+            ">
+            <button id="uploadImageButton" style="
+              width: 40px;
+              height: 40px;
+              background-color: #00bfff;
+              border: none;
+              border-radius: 50%;
+              color: white;
+              font-size: 24px;
+              cursor: pointer;
+            ">+</button>
+            <input type="file" id="fileInput" style="display:none;" accept="image/*" />
+          </div>
+          <div style="margin-top: 80px;">
+            <button id="submitButton" style="
+              background-color: #00bfff;
+              color: white;
+              border: none;
+              border-radius: 20px;
+              padding: 10px 20px;
+              font-size: 16px;
+              cursor: pointer;
+              margin-right: 80px;
+            ">SUBMIT</button>
+            <button id="cancelButton" style="
+              background-color: #00bfff;
+              color: white;
+              border: none;
+              border-radius: 20px;
+              padding: 10px 20px;
+              font-size: 16px;
+              cursor: pointer;
+            ">Cancel</button>
+          </div>
         </div>
-        <div style="margin-top: 20px;">
-          <button id="submitButton" style="
-            background-color: #00bfff;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-right: 10px;
-          ">SUBMIT</button>
-          <button id="cancelButton" style="
-            background-color: #00bfff;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-          ">Cancel</button>
-        </div>
-      </div>
-    `;
+      `;
 
-  // Event listener to open the profile form
+  // Show form when "Edit Profile" button is clicked
   editProfileButton.addEventListener("click", () => {
     overlay.style.display = "block";
     editProfileForm.style.display = "block";
   });
 
-  // Close form and overlay on cancel button click
-  editProfileForm
-    .querySelector("#cancelButton")
-    .addEventListener("click", () => {
-      overlay.style.display = "none";
-      editProfileForm.style.display = "none";
-    });
-
-  // Close form and overlay on clicking overlay
-  overlay.addEventListener("click", () => {
+  // Cancel and close modal
+  const closeModal = () => {
     overlay.style.display = "none";
     editProfileForm.style.display = "none";
-  });
+  };
+  editProfileForm
+    .querySelector("#cancelButton")
+    .addEventListener("click", closeModal);
+  overlay.addEventListener("click", closeModal);
 
+  // Image upload functionality
   const uploadImageButton = editProfileForm.querySelector("#uploadImageButton");
   const fileInput = editProfileForm.querySelector("#fileInput");
   const previewImage = editProfileForm.querySelector("#previewImage");
+  let selectedFile = null;
 
   uploadImageButton.addEventListener("click", () => {
     fileInput.click();
@@ -300,74 +325,153 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fileInput.addEventListener("change", (event) => {
     const file = event.target.files[0];
-    if (file) {
+    if (file && file.type.startsWith("image")) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        previewImage.src = e.target.result; // Preview the uploaded image
-        imageElement.src = e.target.result; // Update the main profile image
+      reader.onloadend = () => {
+        // Directly set the preview image source
+        previewImage.src = reader.result;
       };
-      reader.readAsDataURL(file); // Read the file as a base64 URL
+      reader.readAsDataURL(file); // Read the file as a Data URL
+      selectedFile = file; // Save the selected file for submission
+    } else {
+      alert("Please upload a valid image file.");
+      // Reset the preview image to the original profile image
+      previewImage.src = imageElement1.src;
     }
   });
 
-  // Function to upload the image to Supabase storage and return the public URL
-  const uploadImageToSupabase = async (file) => {
-    const safeFileName = file.name.replace(/\s+/g, '_'); // Replace spaces with underscores
-    const filePath = `${encodeURIComponent(safeFileName)}`; // Do not include bucket name in the path
-    console.log(`Uploading to file path: ${filePath}`); // Log file path for debugging
-  
-    try {
-      const { data, error } = await supabase.storage
-        .from('profile_images') // Use the correct bucket name
-        .upload(filePath, file);
-  
-      if (error) {
-        console.error('Error uploading image:', error.message);
-        alert('Error uploading image: ' + error.message);
-        return null;
-      }
-  
-      const publicUrl = supabase.storage.from('profile_images').getPublicUrl(filePath).publicURL;
-      console.log('Uploaded image URL:', publicUrl);
-      return publicUrl;
-    } catch (error) {
-      console.error('Error during image upload:', error.message);
-      return null;
+  // Submit profile image
+  const submitButton = editProfileForm.querySelector("#submitButton");
+  submitButton.addEventListener("click", async () => {
+    if (!selectedFile) {
+      alert("Please upload an image before submitting.");
+      return;
     }
-  };
 
-  // Handle form submit to upload the image and save URL to the database
-  editProfileForm
-    .querySelector("#submitButton")
-    .addEventListener("click", async () => {
-      const file = fileInput.files[0];
-      if (file) {
-        const imageUrl = await uploadImageToSupabase(file);
-        if (imageUrl) {
-          console.log("Image URL:", imageUrl);
-          // Save the image URL to the profile_images table in Supabase
-          const { data, error } = await supabase
+    // Read the image as a binary blob
+    const reader = new FileReader();
+    reader.onloadend = async function () {
+      const imageBlob = reader.result; // This is the binary data
+
+      if (profileId) {
+        try {
+          // Insert the image as binary data into the database
+          const { data: dbData, error: dbError } = await supabase
             .from("profile_images")
-            .insert([
-              { author_name: "User Name", profile_image_url: imageUrl },
-            ]);
+            .update({ profile_image_url: previewImage.src }) // Update the profile_image_url column
+            .eq("id", profileId);
 
-          if (error) {
+          if (dbError) {
             console.error(
-              "Error inserting image URL into profile_images table:",
-              error.message
+              "Error storing profile image in Supabase:",
+              dbError.message
             );
-            alert("Error saving profile image to database.");
+            alert("Failed to save profile image. Please try again.");
           } else {
-            console.log("Profile image saved to database:", data);
-            overlay.style.display = "none";
-            editProfileForm.style.display = "none";
+            console.log("Profile image uploaded successfully:", dbData);
+            imageElement1.src = previewImage.src; // Display the updated profile image
+            alert("Profile image updated successfully!");
+            closeModal();
           }
-        } else {
-          console.log("Failed to upload image to Supabase.");
+        } catch (err) {
+          console.error("Error submitting post:", err.message);
+          alert("An error occurred. Please try again.");
         }
       } else {
-        alert("Please choose a file before submitting.");
+        try {
+          // Insert the image as binary data into the database
+          const { data: dbData, error: dbError } = await supabase
+            .from("profile_images")
+            .insert([
+              {
+                author_name: currentUsername,
+                image: imageBlob,
+                image_format: selectedFile.type,
+                profile_image_url: previewImage.src,
+              },
+            ]);
+
+          if (dbError) {
+            console.error(
+              "Error storing profile image in Supabase:",
+              dbError.message
+            );
+            alert("Failed to save profile image. Please try again.");
+          } else {
+            console.log("Profile image uploaded successfully:", dbData);
+            imageElement1.src = previewImage.src; // Display the updated profile image
+            alert("Profile image updated successfully!");
+            closeModal();
+          }
+        } catch (err) {
+          console.error("Error submitting post:", err.message);
+          alert("An error occurred. Please try again.");
+        }
       }
-    });
+    };
+
+    reader.readAsArrayBuffer(selectedFile); // Read the image as binary data
+  });
 });
+
+async function fetchProfile() {
+  // Replace 'currentUsername' with the name of the author you want to query
+  const { data, error } = await supabase
+    .from("profile_images")
+    .select("*") // Fetch all columns, or specify specific ones like 'profile_image_url', 'image', etc.
+    .eq("author_name", currentUsername); // Filter by author name
+
+  if (error) {
+    console.error("Error fetching data:", error.message);
+  } else if (data.length > 0) {
+    // Data found for the author
+    console.log("Fetched profile data:", data[0]);
+
+    // Example: Display the profile image in the UI
+    const profileImageURL = data[0].profile_image_url;
+    document.getElementById("previewImage").src = profileImageURL;
+    document.querySelector(".profile-image").src = profileImageURL;
+    profileId = data[0].id;
+  } else {
+    console.log("No profile data found for the specified author.");
+  }
+}
+
+
+const profileImageContainer = document.getElementById("profile-image-container");
+const detailsContainers = document.createElement("div");
+detailsContainers.classList.add("details-containers");
+
+PostCount();
+
+detailsContainers.innerHTML = `  
+<div class="posts-container">
+    <div class="post">Post</div>
+    <div class="post-count">0</div>
+</div>
+<div class="followers-container">
+    <div class="followers">Followers</div>
+    <div class="followers-count">0</div>
+</div>
+<div class="following-container">
+    <div class="following">Following</div>
+    <div class="following-count">0</div>
+</div>`;
+
+async function PostCount() {
+  const { count, error } = await supabase
+    .from("posts")
+    .select("*", { count: "exact" })
+    .eq("author");
+
+  if (error) {
+    console.error("Error fetching post count:", error);
+    return;
+  }
+
+  // Update the post count dynamically
+  const postCountElement = detailsContainers.querySelector(".post-count");
+  postCountElement.textContent = count; // Update with the fetched count
+}
+
+profileImageContainer.appendChild(detailsContainers);
