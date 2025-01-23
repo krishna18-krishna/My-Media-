@@ -346,7 +346,7 @@ async function fetchAllPosts() {
     
        postHeader.innerHTML = `
   <div class="post-header" style="display: flex; align-items: center; margin-bottom: 10px;">
-    <img src="" id = "previewImage" class ="image-container" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-right: 10px;">
+    <img src="" id = "previewImage" class ="image-container" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-right: 10px;" draggable="false">
     <div class="userInfo">
       <span style="font-weight: bold;">${post.author}</span>
       <span style="font-size: 12px; color: #555;">${dateTime.date} ${
@@ -426,7 +426,7 @@ async function fetchAllPosts() {
       const likeDiv = document.createElement("div");
       likeDiv.classList.add("like-button");
       likeDiv.innerHTML = `
-  <img class="like-img" src="../assets/images/like.png" alt="Like">
+  <img class="like-img" src="../assets/images/like.png" alt="Like" draggable="false">
   <span class="like-count">0</span>
 `;
 
@@ -534,7 +534,7 @@ async function fetchAllPosts() {
       const commentDiv = document.createElement("div");
       commentDiv.classList.add("comment-button");
       commentDiv.innerHTML = `
-  <img class="comment-img" src="../assets/images/comments.png" alt="Comments">
+  <img class="comment-img" src="../assets/images/comments.png" alt="Comments" draggable="false">
   <span class="comment-count">0</span>
 `;
 
@@ -787,7 +787,7 @@ async function fetchAllPosts() {
       const shareDiv = document.createElement("div");
       shareDiv.classList.add("share-button");
       shareDiv.innerHTML = `
-    <img class="share-img" src="../assets/images/share.png" alt="Share">
+    <img class="share-img" src="../assets/images/share.png" alt="Share" draggable="false">
       <span class="share-count">0</span>
     `;
 
@@ -949,6 +949,13 @@ function showNotifications() {
 notificationIcon.addEventListener("click", () => {
   dropdown.classList.toggle("hidden");
   showNotifications();
+});
+
+document.addEventListener("scroll", () => {
+  if (!dropdown.classList.contains("hidden")) {
+    dropdown.classList.add("hidden");
+    dropdown.display = "none"
+  }
 });
 
 const chatBox = document.getElementById("chatBox");

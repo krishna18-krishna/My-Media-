@@ -163,12 +163,14 @@ function renderPostImages(posts) {
       const imageElement = document.createElement("img");
       imageElement.classList.add("post-image");
       imageElement.src = post.imageSrc;
+      imageElement.draggable="false";
       imageElement.alt = `Image by ${post.author}`;
       authorsPostsDiv.appendChild(imageElement);
     } else if (!post.imageSrc) {
       authorsPostsDiv.textContent = "No post added";
     }
   });
+  PostCount();
 }
 
 // Event listener for back button
@@ -260,7 +262,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               margin: 0 auto;
               border-radius: 50%;
               object-fit: cover;
-            ">
+            " draggable="false">
             <button id="uploadImageButton" style="
               width: 40px;
               height: 40px;
@@ -439,39 +441,50 @@ async function fetchProfile() {
 
 
 const profileImageContainer = document.getElementById("profile-image-container");
+
+// Create the details container
 const detailsContainers = document.createElement("div");
 detailsContainers.classList.add("details-containers");
 
-PostCount();
-
-detailsContainers.innerHTML = `  
-<div class="posts-container">
+// Set initial HTML structure
+detailsContainers.innerHTML = `
+  <div class="posts-container">
     <div class="post">Post</div>
-    <div class="post-count">0</div>
-</div>
-<div class="followers-container">
+    <div class="post-count"></div>
+  </div>
+  <div class="followers-container">
     <div class="followers">Followers</div>
     <div class="followers-count">0</div>
-</div>
-<div class="following-container">
+  </div>
+  <div class="following-container">
     <div class="following">Following</div>
     <div class="following-count">0</div>
-</div>`;
+  </div>`;
 
+// Append the details container to the profile image container
+profileImageContainer.appendChild(detailsContainers);
+
+// Function to fetch post count
 async function PostCount() {
-  const { count, error } = await supabase
-    .from("posts")
-    .select("*", { count: "exact" })
-    .eq("author");
+  try {
+    const { count, error } = await supabase
+      .from("posts")
+      .select("*", { count: "exact" })
+      .eq("author", currentUsername); // Replace "author_id_here" with the actual author ID
 
-  if (error) {
-    console.error("Error fetching post count:", error);
-    return;
+    if (error) {
+      console.error("Error fetching post count:", error);
+      return;
+    }
+
+    // Update the post count dynamically
+    const postCountElement = detailsContainers.querySelector(".post-count");
+    postCountElement.textContent = count || 0; // Fallback to 0 if count is null
+    console.log("Post :"+count)
+  } catch (err) {
+    console.error("Unexpected error fetching post count:", err);
   }
-
-  // Update the post count dynamically
-  const postCountElement = detailsContainers.querySelector(".post-count");
-  postCountElement.textContent = count; // Update with the fetched count
 }
 
-profileImageContainer.appendChild(detailsContainers);
+// Fetch the post count
+PostCount();
