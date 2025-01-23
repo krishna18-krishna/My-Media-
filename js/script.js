@@ -43,7 +43,6 @@ let currentUsername = null; // Declare globally to ensure accessibility
 
 // DOM content loaded event
 document.addEventListener("DOMContentLoaded", () => {
-  fetchAllPosts();
 
   // Setting menu
   const userIcon = document.getElementById("userIcon");
@@ -76,27 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Firebase auth state change
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const userId = user.uid;
-      try {
-        const userDocRef = doc(db, "users", userId);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          currentUsername = userDoc.data().username || "Guest";
-          await fetchAllPosts(); // Ensure posts are fetched first
-        } else {
-          console.error("No user document found in Firestore.");
-        }
-      } catch (error) {
-        console.error("Error fetching username from Firestore:", error);
-      }
-    } else {
-      console.log("No user is currently signed in.");
-      currentUsername = null;
-    }
-  });
+ 
 
   // Clear form function
   function clearForm() {
@@ -311,6 +290,29 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 });
 
+
+ // Firebase auth state change
+ onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userId = user.uid;
+    try {
+      const userDocRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        currentUsername = userDoc.data().username || "Guest";
+        await fetchAllPosts(); // Ensure posts are fetched first
+      } else {
+        console.error("No user document found in Firestore.");
+      }
+    } catch (error) {
+      console.error("Error fetching username from Firestore:", error);
+    }
+  } else {
+    console.log("No user is currently signed in.");
+    currentUsername = null;
+  }
+});
+
 //Fetching all data from the "posts" table
 async function fetchAllPosts() {
   document.getElementById("post-form").style.display = "none";
@@ -332,14 +334,19 @@ async function fetchAllPosts() {
     }
 
     data.forEach((post) => {
+      fetchProfile();
       let dateTime = formatDateTime(post.created_at);
 
       const postDiv = document.createElement("div");
       postDiv.classList.add("post");
 
-      const postHeader = `
+      const imageContainer = document.querySelector(".image-container");
+      console.log(post);
+      const postHeader =document.createElement('div')
+    
+       postHeader.innerHTML = `
   <div class="post-header" style="display: flex; align-items: center; margin-bottom: 10px;">
-    <img src="assets/images/profile-pic.jpg" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-right: 10px;">
+    <img src="" id = "previewImage" class ="image-container" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-right: 10px;">
     <div class="userInfo">
       <span style="font-weight: bold;">${post.author}</span>
       <span style="font-size: 12px; color: #555;">${dateTime.date} ${
@@ -364,7 +371,34 @@ async function fetchAllPosts() {
   </div>
 `;
 
-      postDiv.innerHTML = postHeader;
+      postDiv.appendChild (postHeader);
+      // Create an image element
+      const imageElement1 = postHeader.querySelector('img')
+
+      // Set default image first
+      imageElement1.src = "./assets/images/profile-pic.jpg";
+      imageElement1.alt = "Profile Picture";
+
+      async function fetchProfile() {
+        const { data, error } = await supabase
+          .from("profile_images")
+          .select("profile_image_url")
+          .eq("author_name", post.author);
+
+        if (error) {
+          console.error("Error fetching data:", error.message);
+        } else if (data.length > 0) {
+        
+          // Data found for the author
+          console.log("Fetched profile data:", data[0]);
+          const profileImageURL = data[0].profile_image_url;
+          console.log("url",profileImageURL);
+          
+          imageElement1.src = profileImageURL;
+        } else {
+          console.log("No profile data found for the specified author.");
+        }
+      }
 
       const postText = document.createElement("p");
       postText.style.marginTop = "30px";
@@ -663,25 +697,27 @@ async function fetchAllPosts() {
                 commentsContainer.appendChild(commentElement);
                 // Add event listener to the three-dot menu
                 if (isAuthor) {
-                  const menuButton = commentElement.querySelector(".menu-button");
-                  const dropdownMenu = commentElement.querySelector(".dropdown-menu");
-      
+                  const menuButton =
+                    commentElement.querySelector(".menu-button");
+                  const dropdownMenu =
+                    commentElement.querySelector(".dropdown-menu");
+
                   menuButton.addEventListener("click", () => {
                     // Toggle the visibility of the dropdown menu
                     dropdownMenu.classList.toggle("hidden");
                   });
-      
+
                   // Add event listener for the delete button
-                  const deleteButton = dropdownMenu.querySelector(".delete-comment");
-                  deleteButton.addEventListener("click", async (event) => {
-                    const commentId = event.target.getAttribute("data-comment-id");
-                    console.log("Fetched Comment ID:", commentId);
-      
+                  const deleteButton =
+                    dropdownMenu.querySelector(".delete-comment");
+                  deleteButton.addEventListener("click", async () => {
+                    const commentId =comment.id;
+
                     if (!commentId) {
                       console.error("Comment ID is missing or undefined.");
                       return;
                     }
-      
+
                     console.log("Comment ID to delete:", commentId); // Debugging log
                     await deleteComment(commentId, postId);
                   });
@@ -705,7 +741,7 @@ async function fetchAllPosts() {
             .from("comment")
             .delete()
             .eq("id", commentId); // Replace `id` with the actual column name if different
-      
+
           if (error) {
             console.error("Error deleting comment:", error.message);
             alert("Failed to delete the comment. Please try again.");
@@ -770,9 +806,28 @@ async function fetchAllPosts() {
       if (post.author !== currentUsername) {
         optionsButton.style.display = "none";
       } else {
-        optionsButton.addEventListener("click", () => {
+        optionsButton.addEventListener("click", (event) => {
           const isVisible = optionsMenu.style.display === "block";
           optionsMenu.style.display = isVisible ? "none" : "block";
+      
+          // Prevent the click from propagating to the document
+          event.stopPropagation();
+        });
+      
+        // Add a global event listener to hide the options menu when clicking outside
+        document.addEventListener("click", (event) => {
+          // Check if the clicked element is outside the options menu or button
+          if (!optionsMenu.contains(event.target) && event.target !== optionsButton) {
+            optionsMenu.style.display = "none";
+          }
+        });
+
+        // Add a global event listener to hide the options menu when clicking outside
+        document.addEventListener("scroll", (event) => {
+          // Check if the clicked element is outside the options menu or button
+          if (!optionsMenu.contains(event.target) && event.target !== optionsButton) {
+            optionsMenu.style.display = "none";
+          }
         });
       }
 
@@ -827,7 +882,6 @@ async function fetchAllPosts() {
             cancelDeleteButton.removeEventListener("click", cancelHandler);
           }
         };
-
         const cancelHandler = () => {
           // Hide the popup
           popup.style.display = "none";
