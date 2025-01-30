@@ -13,7 +13,7 @@
   justify-content: space-between;
   align-items: center;
   background-color: #1876f2;
-  padding: 15px 20px;
+  padding: 10px 20px;
   border-bottom: 1px solid #ccc;
 }
 
@@ -46,17 +46,45 @@
     width: 100%;
 } */
 
-.line1 {
-  border: 0.5px solid black;
-  height: 800px;
+/* Stats Section */
+.details-containers {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 32px;
+  padding-top: 16px;
+}
+
+.posts-container .followers-container .following-container {
+  text-align: center;
+}
+
+.post {
+  font-weight: 600;
+  font-size: 16px;
+}
+.followers {
+  font-weight: 600;
+  font-size: 16px;
+}
+.following {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Posts Section */
+.posts-section {
+  margin-top: 32px;
+  border-top: 1px solid #dbdbdb;
+}
+
+.posts-header {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  color: #262626;
 }
 
 /* Container Styling */
-.container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
 @media (max-width: 768px) {
   .container {
     display: flex;
@@ -83,6 +111,8 @@
 #profile-container {
   text-align: center;
   margin: 20px 70px;
+  border-right: #000
+  ;
 }
 
 .profile-image-container {
@@ -149,9 +179,11 @@
 }
 
 .authors-posts {
-  height: 100%;
+  /* height: 100%;
   width: 100%;
-  margin-bottom: 0;
+  margin-bottom: 0; */
+  display: flex;
+  justify-content: start;
 }
 .post-image {
   margin-left: 20px;
