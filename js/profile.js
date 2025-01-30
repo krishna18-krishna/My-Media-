@@ -440,29 +440,7 @@ async function fetchProfile() {
 }
 
 
-const profileImageContainer = document.getElementById("profile-image-container");
-
-// Create the details container
-const detailsContainers = document.createElement("div");
-detailsContainers.classList.add("details-containers");
-
-// Set initial HTML structure
-detailsContainers.innerHTML = `
-  <div class="posts-container">
-    <div class="post">Post</div>
-    <div class="post-count"></div>
-  </div>
-  <div class="followers-container">
-    <div class="followers">Followers</div>
-    <div class="followers-count">0</div>
-  </div>
-  <div class="following-container">
-    <div class="following">Following</div>
-    <div class="following-count">0</div>
-  </div>`;
-
-// Append the details container to the profile image container
-profileImageContainer.appendChild(detailsContainers);
+const detailsContainers = document.getElementById("details-containers")
 
 // Function to fetch post count
 async function PostCount() {

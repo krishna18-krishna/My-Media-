@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const postContent = document.getElementById("post-content").value.trim();
     const postImageSrc = document.getElementById("imagePreview").src;
 
-    console.log("Post image source:", postImageSrc);
+    // console.log("Post image source:", postImageSrc);
 
     // Case 1: Content is written but no image is selected
     if (
@@ -115,8 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      console.log("Submitting post with content:", postContent);
-      console.log("Submitting post with imageSrc:", postImageSrc);
+      // console.log("Submitting post with content:", postContent);
+      // console.log("Submitting post with imageSrc:", postImageSrc);
 
       const { data, error } = await supabase
         .from("posts")
@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
       reader.onloadend = function () {
         const mediaDataUrl = reader.result;
         imagePreview.src = mediaDataUrl; // Set the valid image source
-        console.log("Image preview source set to:", mediaDataUrl);
+        // console.log("Image preview source set to:", mediaDataUrl);
         imagePreview.style.display = "block";
       };
       reader.readAsDataURL(file);
@@ -341,7 +341,7 @@ async function fetchAllPosts() {
       postDiv.classList.add("post");
 
       const imageContainer = document.querySelector(".image-container");
-      console.log(post);
+      // console.log(post);
       const postHeader =document.createElement('div')
     
        postHeader.innerHTML = `
@@ -390,9 +390,9 @@ async function fetchAllPosts() {
         } else if (data.length > 0) {
         
           // Data found for the author
-          console.log("Fetched profile data:", data[0]);
+          // console.log("Fetched profile data:", data[0]);
           const profileImageURL = data[0].profile_image_url;
-          console.log("url",profileImageURL);
+          /* console.log("url",profileImageURL); */
           
           imageElement1.src = profileImageURL;
         } else {
@@ -572,7 +572,6 @@ async function fetchAllPosts() {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             zIndex: "999",
           });
-          buttonContainer.appendChild(commentBox);
         } else {
           console.error("Overlay not found");
         }
@@ -616,7 +615,7 @@ async function fetchAllPosts() {
                 );
                 alert("Failed to submit your comment. Please try again.");
               } else {
-                console.log("Comment stored successfully:", data);
+                // console.log("Comment stored successfully:", data);
 
                 // Update the comment count after inserting the comment
                 fetchCommentCount(postId); // Update the count
@@ -658,7 +657,7 @@ async function fetchAllPosts() {
               error.message
             );
           } else {
-            console.log("Comments fetched successfully:", data);
+            // console.log("Comments fetched successfully:", data);
 
             // Select the `.comments` container inside the `commentBox`
             const commentsContainer = commentBox.querySelector(".comments");
@@ -718,7 +717,7 @@ async function fetchAllPosts() {
                       return;
                     }
 
-                    console.log("Comment ID to delete:", commentId); // Debugging log
+                    // console.log("Comment ID to delete:", commentId); // Debugging log
                     await deleteComment(commentId, postId);
                   });
                 }
