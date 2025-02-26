@@ -103,17 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Case 2: Neither content nor image is provided
-    if (
-      !postContent &&
-      (postImageSrc === "" ||
-        postImageSrc.includes("default-placeholder-path") ||
-        postImageSrc.includes("#"))
-    ) {
-      alert("Please provide either content or an image to submit your post.");
-      return;
-    }
-
     try {
       // console.log("Submitting post with content:", postContent);
       // console.log("Submitting post with imageSrc:", postImageSrc);
@@ -572,6 +561,7 @@ async function fetchAllPosts() {
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             zIndex: "999",
           });
+          buttonContainer.appendChild(commentBox);
         } else {
           console.error("Overlay not found");
         }
