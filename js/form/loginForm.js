@@ -32,6 +32,12 @@ const auth = getAuth(app);
 }
 checkLoginStatus(); */
 
+// Redirect if already logged in
+let log = localStorage.getItem("logIn");
+if (log === "true") {
+  window.location.href = "../../homepage.html";
+}
+
 // Login form elements
 const loginForm = document.getElementById("loginForm");
 const email = document.getElementById("email");
@@ -92,6 +98,8 @@ loginForm.addEventListener("submit", (event) => {
         const user = userCredential.user;
         console.log("User:", user);
         window.location.href = "./homepage.html"; 
+
+        localStorage.setItem("logIn", "true"); // Store login status **before** redirect
       })
       .catch((error) => {
         // Handle login errors

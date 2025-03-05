@@ -272,9 +272,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  
+
   window.logout = function () {
     console.log("User logged out!");
     hideLogoutAlert();
+    localStorage.setItem("logIn", "false");
     window.location.href = "../index.html";
   };
 });
