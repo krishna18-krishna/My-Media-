@@ -12,7 +12,7 @@
     referrerpolicy="no-referrer" />
 </head>
 <body>
-    <nav>
+    <!-- <nav>
         <div class="nav-left">
             <div class="logo">
                 <div><span class="my">My</span><span class="media">media</span></div>
@@ -43,40 +43,132 @@
                     <a href="#" id="logout1" onclick="showLogoutAlert()">Logout</a>
                 </div>
             </div>
+    </nav> -->
+    <nav class="sidebar">
+        <div class="side-up">
+            <div class="logo">
+                <div><span class="my">My</span><span class="media">media</span></div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item" id="notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span>Notifications</span>
+                </li>
+                <li class="nav-item" id="chatBox">
+                    <i class="fa-regular fa-envelope"></i>
+                    <span>Messages</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="side-down">
+            <div id="add-post-container"></div>
+            <div class="nav-user" id="userIcon">
+                <img src="assets/images/profile-pic.jpg" alt="Pro file" id="userIcon">
+                <span>Profile</span>
+                <div class="nav-user-icon online">
+                    <div id="settings-menu" class="settings-menu">
+                        <a href="./profile.html">See your profile</a>
+                        <a href="#">Settings & Privacy</a>
+                        <a href="#" id="logout1" onclick="showLogoutAlert()">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
+    <div class="main-wrapper">
     <div id="notification-dropdown" class="dropdown hidden"></div>
+    <header class="top-bar">
+        <div class="search-box" id="search-box">
+            <img src="assets/images/search.png" alt="Search">
+            <input type="search" placeholder="Search" id="search">
+        </div>
+        <div class="dropdown1" id="dropdown1"></div>
+        <div class="crossButton" id="crossButton">×</div>
+    </header>
     <div class="container">
-        
-        <div class="main-content"> 
+        <!-- <div class="stories-container">
             <div class="stories">
-                
-            </div> 
+                <div class="story create-story">
+                    <div class="story-image">
+                        <img  alt="Your Story" id="story-Profile" >
+                        <div class="add-story-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <p>Create Story</p>
+                </div>
+            </div>
+        </div> -->
+        
+        <div class="main-content">
+            <div class="stories-container">
+                <div class="stories">
+                    <div class="story create-story">
+                        <div class="story-image">
+                            <img  alt="Your Story" id="story-Profile" >
+                            <div class="add-story-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                        <p>Create Story</p>
+                    </div>
+                </div>
+            </div>
             <div class="overlay" style="display: none;"></div>
-            <div id="post-form" style="display:none; position: fixed;">
+            <!-- <div id="post-form" style="display:none; position: fixed;">
                 <textarea id="post-content" placeholder="Write something..."></textarea>
                 <input type="file" id="post-media" style="cursor: pointer;" multiple accept="image/*, video/* " >
                 <button id="submit-post" onclick="submitPost()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Post</button>
                 <button id="cancel-post" onclick="hidePostForm()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Cancel</button>
                 <img id="imagePreview" src="" style="display: none;" />
-            </div>
+            </div> -->
             <div id="post-container">
                 
             </div>
         </div>
     </div>
- 
-    <div id="logout-alert" class="logout-alert" style="display: none;">
-        <h1 class="alert-content">Are you sure you want to logout?</h1>
-        <div class="button">
-            <button class="yes" type="button" onclick="logout()">Yes</button>
-            <button class="no" type="button" onclick="hideLogoutAlert()">No</button>
+    <div id="post-form" class="modal" style="display:none;">
+        
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Post</h3>
+                <button onclick="hidePostForm()" class="close-btn">&times;</button>
+            </div>
+            <textarea id="post-content" placeholder="What's on your mind?"></textarea>
+            <div class="media-upload">
+                <label for="post-media" class="upload-btn">
+                    <img src="assets/images/photo.png" alt="Upload">
+                    Add Photo
+                </label>
+                <input type="file" id="post-media" multiple accept="image/*, video/*">
+            </div>
+            <img id="imagePreview" src="" style="display: none;">
+            <div class="modal-actions">
+                <button id="submit-post" onclick="submitPost()">Post</button>
+                <button id="cancel-post" onclick="hidePostForm()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="overlay" id="overlay" style="display: none;"></div>
+    <div id="logout-alert" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Logout Confirmation</h3>
+            <p>Are you sure you want to logout?</p>
+            <div class="modal-actions">
+                <button class="yes" onclick="logout()">Yes</button>
+                <button class="no" onclick="hideLogoutAlert()">No</button>
+            </div>
         </div>
     </div>
     <div id="delete-popup" class="popup-overlay" style="display: none;">
-        <div class="popup">
-          <p>Are you sure you want to delete this post?</p>
-          <button id="confirm-delete" class="popup-button">Delete</button>
-          <button id="cancel-delete" class="popup-button">Cancel</button>
+        <div class="modal-content">
+            <h3>Delete Post</h3>
+            <p>Are you sure you want to delete this post?</p>
+            <div class="modal-actions">
+                <button id="confirm-delete" class="popup-button">Delete</button>
+                <button id="cancel-delete" class="popup-button">Cancel</button>
+            </div>
         </div>
       </div>
 

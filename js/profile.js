@@ -240,61 +240,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.body.appendChild(editProfileForm);
 
   editProfileForm.innerHTML = `
-        <div id="editProfileForm" style="
-          display: block;
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          padding: 30px;
-          border-radius: 15px;
-          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-          text-align: center;
-          z-index: 1000;
-          width: 400px;
-          height: 300px;
-        ">
+        <div id="editProfileForm" style="display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white;padding: 30px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); text-align: center; z-index: 1000; width: 400px; height: 300px;">
           <div>
-            <img src="${imageElement1.src}" id="previewImage"  class ="image-container" style="
-              width: 100px;
-              height: 100px;
-              margin: 0 auto;
-              border-radius: 50%;
-              object-fit: cover;
-            " draggable="false">
-            <button id="uploadImageButton" style="
-              width: 40px;
-              height: 40px;
-              background-color: #00bfff;
-              border: none;
-              border-radius: 50%;
-              color: white;
-              font-size: 24px;
-              cursor: pointer;
-            ">+</button>
+            <img src="${imageElement1.src}" id="previewImage"  class ="image-container" style=" width: 100px;height: 100px; margin: 0 auto; border-radius: 50%; object-fit: cover; " draggable="false">
+            <button id="uploadImageButton" style="width: 40px; height: 40px; background-color: #00bfff; border: none; border-radius: 50%; color: white; font-size: 24px; cursor: pointer;">+</button>
             <input type="file" id="fileInput" style="display:none;" accept="image/*" />
           </div>
           <div style="margin-top: 80px;">
-            <button id="submitButton" style="
-              background-color: #00bfff;
-              color: white;
-              border: none;
-              border-radius: 20px;
-              padding: 10px 20px;
-              font-size: 16px;
-              cursor: pointer;
-              margin-right: 80px;
-            ">SUBMIT</button>
-            <button id="cancelButton" style="
-              background-color: #00bfff;
-              color: white;
-              border: none;
-              border-radius: 20px;
-              padding: 10px 20px;
-              font-size: 16px;
-              cursor: pointer;
-            ">Cancel</button>
+            <button id="submitButton" style="background-color: #00bfff; color: white; border: none; border-radius: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; margin-right: 80px;">SUBMIT</button>
+            <button id="cancelButton" style="background-color: #00bfff; color: white; border: none; border-radius: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Cancel</button>
           </div>
         </div>
       `;
