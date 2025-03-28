@@ -39,7 +39,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-let currentUsername = null; // Declare globally to ensure accessibility
+let currentUsername; // Declare globally to ensure accessibility
 
 // DOM content loaded event
 document.addEventListener("DOMContentLoaded", () => {
@@ -158,25 +158,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const addPostContainer = document.getElementById("add-post-container");
   // Add "Add Post" button
   const addPostButton = document.createElement("button");
   addPostButton.textContent = "Add Post";
   addPostButton.id = "add-post-button";
-  Object.assign(addPostButton.style, {
-    position: "fixed",
-    bottom: "20px",
-    right: "20px",
-    padding: "10px 20px",
-    backgroundColor: "#007bff",
-    color: "#fff",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  });
 
-  document.body.appendChild(addPostButton);
+  // Object.assign(addPostButton.style, {
+  //   padding: "10px 60px 10px 60px",
+  //   backgroundColor: "#007bff",
+  //   color: "#fff",
+  //   border: "none",
+  //   borderRadius: "5px",
+  //   cursor: "pointer",
+  // });
+  function updateButtonText() {
+    if (window.innerWidth <= 768 || window.innerWidth <= 1025) {
+        addPostButton.textContent = "+";
+    } else {
+        addPostButton.textContent = "Add Post";
+    }
+}
 
-  const overlay = document.querySelector(".overlay");
+
+window.addEventListener("load", updateButtonText);
+window.addEventListener("resize", updateButtonText);
+
+  addPostContainer.appendChild(addPostButton);
+
+  const overlay = document.getElementById("overlay");
   const postForm = document.getElementById("post-form");
 
   // Show post form
@@ -244,25 +254,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.showLogoutAlert = function () {
     const logoutAlert = document.getElementById("logout-alert");
+    const overlay = document.getElementById("overlay")
     if (logoutAlert && overlay) {
       logoutAlert.style.display = "block";
-      Object.assign(overlay.style, {
-        display: "block",
-        position: "fixed",
-        top: "0",
-        left: "0",
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        zIndex: "999",
-      });
+      overlay.style.display = "block"
     } else {
       console.error("Logout alert element not found.");
     }
   };
 
   window.hideLogoutAlert = function () {
-    const overlay = document.querySelector(".overlay");
+    const overlay = document.getElementById("overlay");
     const logoutAlert = document.getElementById("logout-alert");
     if (logoutAlert && overlay) {
       overlay.style.display = "none";
@@ -293,6 +295,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (userDoc.exists()) {
         currentUsername = userDoc.data().username || "Guest";
         await fetchAllPosts(); // Ensure posts are fetched first
+        console.log(currentUsername)
+        fetchStoryProfile();
+        fetchProfile();
+
       } else {
         console.error("No user document found in Firestore.");
       }
@@ -552,7 +558,7 @@ async function fetchAllPosts() {
       fetchAndDisplayComments(post.id);
       // Display the comment box and overlay when comment button is clicked
       commentDiv.addEventListener("click", () => {
-        const overlay = document.querySelector(".overlay");
+        const overlay = document.getElementById("overlay");
         if (overlay && commentBox) {
           Object.assign(overlay.style, {
             display: "block",
@@ -572,7 +578,7 @@ async function fetchAllPosts() {
 
       // Close the comment box when the close button is clicked
       commentBox.addEventListener("click", (event) => {
-        const overlay = document.querySelector(".overlay");
+        const overlay = document.getElementById("overlay");
         if (event.target.id === "closeOverlayButton") {
           commentBox.style.display = "none"; // Hide the overlay
           overlay.style.display = "none";
@@ -946,7 +952,7 @@ notificationIcon.addEventListener("click", () => {
 document.addEventListener("scroll", () => {
   if (!dropdown.classList.contains("hidden")) {
     dropdown.classList.add("hidden");
-    dropdown.display = "none"
+    dropdown.display = "none";
   }
 });
 
@@ -956,10 +962,37 @@ chatBox.addEventListener("click", () => {
 });
 
 //search box
+const topBar = document.getElementById("search-box");
 const searchInput = document.getElementById("search");
 const dropdown1 = document.getElementById("dropdown1");
+const cancelSearchButton = document.getElementById("crossButton");
 
-// Event listener for search input
+const overlay = document.getElementById("overlay");
+
+
+searchInput.addEventListener("click", (e) => {
+  overlay.style.display = "block";
+  overlay.style.zIndex = "997";
+  topBar.style.display = "bloch";
+  topBar.style.display = "999";
+  dropdown1.style.display = "block"; // Show the dropdown if necessary
+  dropdown1.style.zIndex = "998"
+  cancelSearchButton.style.display = "block"
+  e.stopPropagation(); // Prevent click event from bubbling up
+});
+
+cancelSearchButton.addEventListener("click", (e) =>{
+  overlay.style.display = "none"; // Hide the overlay
+    dropdown1.style.display = "none"; // Optionally hide the dropdown
+    cancelSearchButton.style.display = "none"
+})
+// Hide overlay when clicking outside of search or overlay
+document.addEventListener("click", (e) => {
+  if (!searchInput.contains(e.target) && !overlay.contains(e.target)) {
+    overlay.style.display = "none"; // Hide the overlay
+    dropdown1.style.display = "none"; // Optionally hide the dropdown
+  }
+});
 searchInput.addEventListener("input", async function () {
   const queryText = searchInput.value.toLowerCase();
   dropdown1.innerHTML = ""; // Clear previous results
@@ -981,10 +1014,49 @@ searchInput.addEventListener("input", async function () {
           const user = doc.data();
           const item = document.createElement("div");
           item.classList.add("dropdown-item");
-          item.textContent = user.username;
+          item.style.cursor = "pointer";
+          item.style.gap = "10px"
+          const searchProfileImage = document.createElement("img");
+          searchProfileImage.classList.add("search-profile-image");
+          searchProfileImage.style.cursor = "pointer";
+          
+
+          // const 
+          const defaultSrc = "../assets/images/profile-pic.jpg";
+          searchProfileImage.src = `${defaultSrc}`;
+          async function fetchProfile() {
+            const { data, error } = await supabase
+              .from("profile_images")
+              .select("profile_image_url")
+              .eq("author_name", user.username);
+
+            if (error) {
+              console.error("Error fetching data:", error.message);
+            } else if (data.length > 0) {
+            
+              // Data found for the author
+              // console.log("Fetched profile data:", data[0]);
+              const profileImageURL = data[0].profile_image_url;
+              console.log(profileImageURL);
+              /* console.log("url",profileImageURL); */
+              
+              searchProfileImage.src = profileImageURL;
+            } else {
+              searchProfileImage.src = `${defaultSrc}`;
+              console.log("No profile data found for the specified author.");
+            }
+          }
+          fetchProfile();
+          item.innerHTML = `<p>${item.textContent = user.username}</p>`;
+          item.appendChild(searchProfileImage);
           item.addEventListener("click", function () {
-            searchInput.value = user.username; // Set input value to clicked item
+            // searchInput.value = user.username; // Set input value to clicked item
             dropdown1.style.display = "none"; // Hide dropdown
+          });
+          
+          
+          item.addEventListener("click", function() {
+            window.location.href = `../profile.html?username=${user.username}`;
           });
           dropdown1.appendChild(item);
         });
@@ -1011,3 +1083,39 @@ document.addEventListener("click", function (e) {
     dropdown1.style.display = "none";
   }
 });
+
+
+console.log(currentUsername);
+
+// stories
+const storyProfile = document.getElementById("story-Profile");
+
+    // Default profile image
+    storyProfile.src = "./assets/images/profile-pic.jpg";
+    
+    // Function to fetch the profile image from Supabase
+    async function fetchStoryProfile() {
+      try{
+        const {data, error} = await supabase
+        .from("profile_images")
+          .select("profile_image_url")
+          .eq("author_name", currentUsername || user.username);
+          console.log(data);
+          if (error) {
+            console.error("Error fetching data:", error.message);
+          } else if (data.length > 0) {
+          
+            // Data found for the author
+            // console.log("Fetched profile data:", data[0]);
+            const profileImageURL = data[0].profile_image_url;
+            /* console.log("url",profileImageURL); */
+            
+            storyProfile.src = profileImageURL;
+          } else {
+            console.log("No profile data found for the specified author.");
+          }
+      }
+      catch{
+
+      }
+    }
