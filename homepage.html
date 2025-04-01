@@ -12,38 +12,6 @@
     referrerpolicy="no-referrer" />
 </head>
 <body>
-    <!-- <nav>
-        <div class="nav-left">
-            <div class="logo">
-                <div><span class="my">My</span><span class="media">media</span></div>
-            </div>
-            <ul>
-                <li>
-                    <img src="assets/images/notification.png" alt="This is notification" draggable="false" id="notifications">
-                    
-                </li>
-                
-                <li><img src="assets/images/inbox.png" alt="This is mail" draggable="false" id="chatBox"></li>
-
-            </ul>
-
-        </div>
-
-        <div class="nav-rigth">
-            <div class="search-box">
-                <img src="assets/images/search.png" alt="This is search box" draggable="false">
-                <input type="search" placeholder="Search" id="search">
-                <div class="dropdown1" id="dropdown1"></div>
-            </div>
-            <div class="nav-user-icon online">
-                <a href="#"><img src="assets/images/profile-pic.jpg" alt="Profile" id="userIcon" draggable="false"></a>
-                <div id="settings-menu" class="settings-menu">
-                    <a href="./profile.html">See your profile</a>
-                    <a href="#">Settings & Privacy</a>
-                    <a href="#" id="logout1" onclick="showLogoutAlert()">Logout</a>
-                </div>
-            </div>
-    </nav> -->
     <nav class="sidebar">
         <div class="side-up">
             <div class="logo">
@@ -87,20 +55,7 @@
         <div class="crossButton" id="crossButton">×</div>
     </header>
     <div class="container">
-        <!-- <div class="stories-container">
-            <div class="stories">
-                <div class="story create-story">
-                    <div class="story-image">
-                        <img  alt="Your Story" id="story-Profile" >
-                        <div class="add-story-icon">
-                            <i class="fas fa-plus"></i>
-                        </div>
-                    </div>
-                    <p>Create Story</p>
-                </div>
-            </div>
-        </div> -->
-        
+
         <div class="main-content">
             <div class="stories-container">
                 <div class="stories">
@@ -116,13 +71,6 @@
                 </div>
             </div>
             <div class="overlay" style="display: none;"></div>
-            <!-- <div id="post-form" style="display:none; position: fixed;">
-                <textarea id="post-content" placeholder="Write something..."></textarea>
-                <input type="file" id="post-media" style="cursor: pointer;" multiple accept="image/*, video/* " >
-                <button id="submit-post" onclick="submitPost()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Post</button>
-                <button id="cancel-post" onclick="hidePostForm()" style="color: #fff; padding: 5px 10px; background-color: #007bff; border: #007bff; border-radius: 5px; cursor: pointer;">Cancel</button>
-                <img id="imagePreview" src="" style="display: none;" />
-            </div> -->
             <div id="post-container">
                 
             </div>
@@ -138,7 +86,6 @@
             <textarea id="post-content" placeholder="What's on your mind?"></textarea>
             <div class="media-upload">
                 <label for="post-media" class="upload-btn">
-                    <img src="assets/images/photo.png" alt="Upload">
                     Add Photo
                 </label>
                 <input type="file" id="post-media" multiple accept="image/*, video/*">
@@ -151,6 +98,7 @@
         </div>
     </div>
     <div class="overlay" id="overlay" style="display: none;"></div>
+    <div class="overlay" id="overlay1" style="display: none;"></div>
     <div id="logout-alert" class="modal" style="display: none;">
         <div class="modal-content">
             <h3>Logout Confirmation</h3>

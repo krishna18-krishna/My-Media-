@@ -297,8 +297,6 @@ window.addEventListener("resize", updateButtonText);
         await fetchAllPosts(); // Ensure posts are fetched first
         console.log(currentUsername)
         fetchStoryProfile();
-        fetchProfile();
-
       } else {
         console.error("No user document found in Firestore.");
       }
@@ -967,7 +965,7 @@ const searchInput = document.getElementById("search");
 const dropdown1 = document.getElementById("dropdown1");
 const cancelSearchButton = document.getElementById("crossButton");
 
-const overlay = document.getElementById("overlay");
+const overlay = document.getElementById("overlay1");
 
 
 searchInput.addEventListener("click", (e) => {
