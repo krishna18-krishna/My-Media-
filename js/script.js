@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("post-media").value = "";
     document.getElementById("imagePreview").src = "#";
     document.getElementById("imagePreview").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
   }
 
   // Submit post to Supabase
@@ -238,6 +239,7 @@ window.addEventListener("resize", updateButtonText);
     );
     if (cancelButton) {
       cancelButton.addEventListener("click", hidePostForm);
+      clearForm();
     } else {
       console.error("Cancel button not found in post form.");
     }
