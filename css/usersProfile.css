@@ -1,0 +1,199 @@
+@import url("https://fonts.googleapis.com/css2?family=Dosis:wght@200&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+/* Global Styling */
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "poppins", sans-serif;
+}
+
+/* Header Styling */
+#nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+.settings-icon i {
+  width: 20px;
+  cursor: pointer;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+#username {
+  margin-left: 20px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #000;
+}
+
+#back-button{
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Line Divider */
+/* .line,
+.line1 {
+    border: 0.5px solid #ccc;
+    width: 100%;
+} */
+
+/* Stats Section */
+.details-containers {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 32px;
+  padding-top: 16px;
+}
+
+.posts-container .followers-container .following-container {
+  text-align: center;
+}
+
+.post {
+  font-weight: 600;
+  font-size: 16px;
+}
+.followers {
+  font-weight: 600;
+  font-size: 16px;
+}
+.following {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Posts Section */
+.posts-section {
+  margin-top: 32px;
+  border-top: 1px solid #dbdbdb;
+}
+
+.posts-header {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  color: #262626;
+}
+
+/* Container Styling */
+@media (max-width: 768px) {
+  .container {
+    display: flex;
+    flex-direction: column;
+  }
+}
+@media (max-width: 768px) {
+  #profile-container {
+    margin-top: 100px;
+  }
+}
+@media (max-width: 768px) {
+  .line1 {
+    display: none;
+  }
+}
+@media (max-width: 768px) {
+  .authors-posts {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+#profile-container {
+  text-align: center;
+  margin: 20px 70px;
+  border-right: #000
+  ;
+}
+
+.profile-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+}
+
+#uploadImageButton {
+  width: 40px;
+  height: 40px;
+  background-color: #00bfff;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
+  line-height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: absolute;
+  left: 180px;
+  top: 100px;
+}
+
+.profile-image {
+  height: 150px;
+  width: 150px;
+
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.fullname {
+  font-size: 25px;
+  font-weight: bold;
+  color: #333;
+}
+
+.edit-profile button {
+  padding: 10px 20px;
+  background-color: #38b6ff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.edit-profile button:hover {
+  background-color: #007acc;
+}
+
+/* details-containers */
+.details-containers {
+  display: inline-flex;
+  gap: 80px;
+  margin-left: 20px;
+}
+
+.authors-posts {
+  /* height: 100%;
+  width: 100%;
+  margin-bottom: 0; */
+  display: flex;
+  justify-content: start;
+}
+.post-image {
+  margin-left: 20px;
+  margin-top: 20px;
+  width: 300px;
+  height: 200px;
+}
+.no-posts-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+}
