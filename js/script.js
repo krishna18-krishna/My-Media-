@@ -374,7 +374,7 @@ async function fetchAllPosts() {
       const imageElement1 = postHeader.querySelector('img')
 
       // Set default image first
-      imageElement1.src = "/assets/images/profile-pic.jpg";
+      imageElement1.src = "./assets/images/profile-pic.jpg";
       imageElement1.alt = "Profile Picture";
 
       async function fetchProfile() {
@@ -958,7 +958,7 @@ document.addEventListener("scroll", () => {
 
 const chatBox = document.getElementById("chatBox");
 chatBox.addEventListener("click", () => {
-  window.location.href = "/chatBox.html";
+  window.location.href = "../chatBox.html";
 });
 
 //search box
@@ -1087,7 +1087,7 @@ console.log(currentUsername);
 const storyProfile = document.getElementById("story-Profile");
 
     // Default profile image
-    storyProfile.src = "/assets/images/profile-pic.jpg";
+    storyProfile.src = "./assets/images/profile-pic.jpg";
     
     // Function to fetch the profile image from Supabase
     async function fetchStoryProfile() {
