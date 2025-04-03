@@ -176,7 +176,7 @@ function renderPostImages(posts) {
 // Event listener for back button
 if (backButton) {
   backButton.addEventListener("click", () => {
-    window.location.href = "../pages/homepage.html"; // Replace with your actual home page path
+    window.location.href = "/homepage.html"; // Replace with your actual home page path
   });
 } else {
   console.error("Back button not found in DOM.");
