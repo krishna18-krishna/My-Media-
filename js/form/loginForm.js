@@ -22,7 +22,7 @@ const auth = getAuth(app);
 // Redirect if already logged in
 let log = localStorage.getItem("logIn");
 if (log === "true") {
-  window.location.href = "../../homepage.html";
+  window.location.href = "../../pages/homepage.html";
 }
 
 // Login form elements
@@ -84,7 +84,7 @@ loginForm.addEventListener("submit", (event) => {
         // Signed in successfully
         const user = userCredential.user;
         console.log("User:", user);
-        window.location.href = "./homepage.html"; 
+        window.location.href = "../../pages/homepage.html"; 
 
         localStorage.setItem("logIn", "true"); // Store login status **before** redirect
       })

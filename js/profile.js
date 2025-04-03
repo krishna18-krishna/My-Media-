@@ -176,7 +176,7 @@ function renderPostImages(posts) {
 // Event listener for back button
 if (backButton) {
   backButton.addEventListener("click", () => {
-    window.location.href = "./homepage.html"; // Replace with your actual home page path
+    window.location.href = "../pages/homepage.html"; // Replace with your actual home page path
   });
 } else {
   console.error("Back button not found in DOM.");
@@ -192,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   imageElement1.classList.add("profile-image");
 
   // Set default image first
-  imageElement1.src = "./assets/images/profile-pic.jpg";
+  imageElement1.src = "../assets/images/profile-pic.jpg";
   imageElement1.alt = "Profile Picture";
   imageContainer.appendChild(imageElement1);
 

@@ -374,7 +374,7 @@ async function fetchAllPosts() {
       const imageElement1 = postHeader.querySelector('img')
 
       // Set default image first
-      imageElement1.src = "./assets/images/profile-pic.jpg";
+      imageElement1.src = "../assets/images/profile-pic.jpg";
       imageElement1.alt = "Profile Picture";
 
       async function fetchProfile() {
@@ -958,7 +958,7 @@ document.addEventListener("scroll", () => {
 
 const chatBox = document.getElementById("chatBox");
 chatBox.addEventListener("click", () => {
-  window.location.href = "../chatBox.html";
+  window.location.href = "../pages/chatBox.html";
 });
 
 //search box
@@ -994,13 +994,13 @@ document.addEventListener("click", (e) => {
   }
 });
 searchInput.addEventListener("input", async function () {
-  const queryText = searchInput.value.toLowerCase();
+  const queryText = searchInput.value.toLowerCase().trim();
   dropdown1.innerHTML = ""; // Clear previous results
 
   if (queryText) {
     try {
       // Query Firestore
-      const usersRef = collection(db, "users"); // Replace 'users' with your collection name
+      const usersRef = collection(db, "users");
       const q = query(
         usersRef,
         where("username", ">=", queryText),
@@ -1010,59 +1010,54 @@ searchInput.addEventListener("input", async function () {
 
       if (!querySnapshot.empty) {
         dropdown1.style.display = "block";
+
+        // **Prevent Duplicates**: Use a Set with normalized usernames
+        const seenUsers = new Set();
+
         querySnapshot.forEach((doc) => {
           const user = doc.data();
-          const item = document.createElement("div");
-          item.classList.add("dropdown-item");
-          item.style.cursor = "pointer";
-          item.style.gap = "10px"
-          const searchProfileImage = document.createElement("img");
-          searchProfileImage.classList.add("search-profile-image");
-          searchProfileImage.style.cursor = "pointer";
-          
+          const normalizedUsername = user.username.trim().toLowerCase(); // Normalize username
 
-          // const 
-          const defaultSrc = "../assets/images/profile-pic.jpg";
-          searchProfileImage.src = `${defaultSrc}`;
-          async function fetchProfile() {
-            const { data, error } = await supabase
-              .from("profile_images")
-              .select("profile_image_url")
-              .eq("author_name", user.username);
+          if (!seenUsers.has(normalizedUsername)) {
+            seenUsers.add(normalizedUsername); // Add normalized username to Set
 
-            if (error) {
-              console.error("Error fetching data:", error.message);
-            } else if (data.length > 0) {
-            
-              // Data found for the author
-              // console.log("Fetched profile data:", data[0]);
-              const profileImageURL = data[0].profile_image_url;
-              console.log(profileImageURL);
-              /* console.log("url",profileImageURL); */
-              
-              searchProfileImage.src = profileImageURL;
-            } else {
-              searchProfileImage.src = `${defaultSrc}`;
-              console.log("No profile data found for the specified author.");
+            const item = document.createElement("div");
+            item.classList.add("dropdown-item");
+            item.style.cursor = "pointer";
+            item.style.gap = "10px";
+
+            const searchProfileImage = document.createElement("img");
+            searchProfileImage.classList.add("search-profile-image");
+            searchProfileImage.style.cursor = "pointer";
+
+            const defaultSrc = "../assets/images/profile-pic.jpg";
+            searchProfileImage.src = defaultSrc;
+
+            async function fetchProfile() {
+              const { data, error } = await supabase
+                .from("profile_images")
+                .select("profile_image_url")
+                .eq("author_name", user.username);
+
+              if (!error && data.length > 0) {
+                searchProfileImage.src = data[0].profile_image_url;
+              }
             }
+            fetchProfile();
+
+            item.innerHTML = `<p>${user.username}</p>`;
+            item.appendChild(searchProfileImage);
+
+            item.addEventListener("click", function () {
+              window.location.href = `../pages/usersProfile.html?username=${user.username}`;
+            });
+
+            dropdown1.appendChild(item);
           }
-          fetchProfile();
-          item.innerHTML = `<p>${item.textContent = user.username}</p>`;
-          item.appendChild(searchProfileImage);
-          item.addEventListener("click", function () {
-            // searchInput.value = user.username; // Set input value to clicked item
-            dropdown1.style.display = "none"; // Hide dropdown
-          });
-          
-          
-          item.addEventListener("click", function() {
-            window.location.href = `../profile.html?username=${user.username}`;
-          });
-          dropdown1.appendChild(item);
         });
       } else {
-        // Show a single "Not found" message
-        dropdown1.innerHTML = ""; // Ensure dropdown is cleared first
+        // Show "Not found" message if no results
+        dropdown1.innerHTML = "";
         const notFoundItem = document.createElement("div");
         notFoundItem.classList.add("dropdown-item");
         notFoundItem.textContent = "Not found";
@@ -1076,6 +1071,7 @@ searchInput.addEventListener("input", async function () {
     dropdown1.style.display = "none";
   }
 });
+
 
 // Hide dropdown when clicking outside the search box
 document.addEventListener("click", function (e) {
@@ -1091,7 +1087,7 @@ console.log(currentUsername);
 const storyProfile = document.getElementById("story-Profile");
 
     // Default profile image
-    storyProfile.src = "./assets/images/profile-pic.jpg";
+    storyProfile.src = "../assets/images/profile-pic.jpg";
     
     // Function to fetch the profile image from Supabase
     async function fetchStoryProfile() {

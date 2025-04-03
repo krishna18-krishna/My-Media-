@@ -174,7 +174,7 @@ registrationForm.addEventListener("submit", async (event) => {
         });
 
         console.log("User registered:", user);
-        window.location.href = "./homepage.html";
+        window.location.href = "../../pages/homepage.html";
       })
       .catch((error) => {
         const errorCode = error.code;
