@@ -282,7 +282,7 @@ window.addEventListener("resize", updateButtonText);
     console.log("User logged out!");
     hideLogoutAlert();
     localStorage.setItem("logIn", "false");
-    window.location.href = "../index.html";
+    window.location.href = "/index.html";
   };
 });
 
@@ -374,7 +374,7 @@ async function fetchAllPosts() {
       const imageElement1 = postHeader.querySelector('img')
 
       // Set default image first
-      imageElement1.src = "../assets/images/profile-pic.jpg";
+      imageElement1.src = "/assets/images/profile-pic.jpg";
       imageElement1.alt = "Profile Picture";
 
       async function fetchProfile() {
@@ -424,7 +424,7 @@ async function fetchAllPosts() {
       const likeDiv = document.createElement("div");
       likeDiv.classList.add("like-button");
       likeDiv.innerHTML = `
-  <img class="like-img" src="../assets/images/like.png" alt="Like" draggable="false">
+  <img class="like-img" src="/assets/images/like.png" alt="Like" draggable="false">
   <span class="like-count">0</span>
 `;
 
@@ -532,7 +532,7 @@ async function fetchAllPosts() {
       const commentDiv = document.createElement("div");
       commentDiv.classList.add("comment-button");
       commentDiv.innerHTML = `
-  <img class="comment-img" src="../assets/images/comments.png" alt="Comments" draggable="false">
+  <img class="comment-img" src="/assets/images/comments.png" alt="Comments" draggable="false">
   <span class="comment-count">0</span>
 `;
 
@@ -785,7 +785,7 @@ async function fetchAllPosts() {
       const shareDiv = document.createElement("div");
       shareDiv.classList.add("share-button");
       shareDiv.innerHTML = `
-    <img class="share-img" src="../assets/images/share.png" alt="Share" draggable="false">
+    <img class="share-img" src="/assets/images/share.png" alt="Share" draggable="false">
       <span class="share-count">0</span>
     `;
 
@@ -958,7 +958,7 @@ document.addEventListener("scroll", () => {
 
 const chatBox = document.getElementById("chatBox");
 chatBox.addEventListener("click", () => {
-  window.location.href = "../pages/chatBox.html";
+  window.location.href = "/chatBox.html";
 });
 
 //search box
@@ -1030,7 +1030,7 @@ searchInput.addEventListener("input", async function () {
             searchProfileImage.classList.add("search-profile-image");
             searchProfileImage.style.cursor = "pointer";
 
-            const defaultSrc = "../assets/images/profile-pic.jpg";
+            const defaultSrc = "/assets/images/profile-pic.jpg";
             searchProfileImage.src = defaultSrc;
 
             async function fetchProfile() {
@@ -1049,7 +1049,7 @@ searchInput.addEventListener("input", async function () {
             item.appendChild(searchProfileImage);
 
             item.addEventListener("click", function () {
-              window.location.href = `../pages/usersProfile.html?username=${user.username}`;
+              window.location.href = `/usersProfile.html?username=${user.username}`;
             });
 
             dropdown1.appendChild(item);
@@ -1087,7 +1087,7 @@ console.log(currentUsername);
 const storyProfile = document.getElementById("story-Profile");
 
     // Default profile image
-    storyProfile.src = "../assets/images/profile-pic.jpg";
+    storyProfile.src = "/assets/images/profile-pic.jpg";
     
     // Function to fetch the profile image from Supabase
     async function fetchStoryProfile() {

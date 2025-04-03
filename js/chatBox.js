@@ -3,5 +3,5 @@
 const logo = document.getElementById("logo");
 
 logo.addEventListener("click", ()=>{
-    window.location.href = "../pages/homepage.html"
+    window.location.href = "/homepage.html"
 })
