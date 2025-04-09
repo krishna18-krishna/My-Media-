@@ -547,7 +547,7 @@ async function fetchAllPosts() {
       <div class="comments"></div>
       <!-- Footer with input and send button -->
       <div class="comment-footer">
-        <span class="emoji">😊</span>
+        <!--<span class="emoji">😊</span>-->
         <input class="comment-input" id="commentInput" type="text" placeholder="Write your comment...." maxlength="500" />
         <div class="send-button" id="sendButton">➤</div>
       </div>
