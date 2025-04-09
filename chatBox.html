@@ -9,23 +9,24 @@
 </head>
 <body>
     <header>
-        <nav class="nav-container">
-            <div class="nav-left">
+        <nav class="sidebar">
+            <div class="side-up">
                 <div class="logo">
-                    <div id="logo"><span class="my">My</span><span class="media">media</span></div>
+                    <div id="logo"><span class="my">My</span></div>
                 </div>
             </div>
-            <div class="nav-rigth">
-                <div class="nav-user-icon online">
-                    <a href="#"><img src="assets/images/profile-pic.jpg" alt="Profile" id="userIcon" onclick="toggleMenu()"></a>
+            <div class="side-down">
+                <div class="nav-user" id="userIcon">
+                    <img src="" alt="Pro file" id="userIcon">
                 </div>
             </div>
-
         </nav>
     </header>
-    <div class="friends-list"></div>
+    <div class="friends-list">
+        <div id="username" class="username"></div>
+    </div>
     <div class="chating"></div>
 
-<script src="js/chatBox.js"></script>
+<script type="module" src="js/chatBox.js" defer></script>
 </body>
 </html>
