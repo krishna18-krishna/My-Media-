@@ -355,7 +355,7 @@ async function fetchAllPosts() {
       post.author !== currentUsername
         ? `
       <div id="follow-button">
-        <button id="followButton">Follow</button>
+        <button id="followButton" class="follow-button">Follow</button>
       </div>
     `
         : ""
@@ -410,6 +410,18 @@ async function fetchAllPosts() {
       postImage.alt = "Uploaded Image";
       postImage.style.width = "600px";
       postDiv.appendChild(postImage);
+
+
+      setTimeout(() => {
+        const followButtons = postHeader.querySelectorAll(".follow-button");
+      
+        followButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            console.log("Follow button clicked for", post.author);
+            button.style.display = "none";
+          });
+        });
+      }, 0);
 
       // Buttons container
       const buttonContainer = document.createElement("div");
