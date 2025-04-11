@@ -4,7 +4,10 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// Firebase configuration
+// Supabase initialization
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.27.0/+esm";
+
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyC6fJyPKmyBrJizmkopfnlk2kb6cvs5cJM",
   authDomain: "my-media-285c9.firebaseapp.com",
@@ -15,11 +18,18 @@ const firebaseConfig = {
   measurementId: "G-D26DKE6ZVG"
 };
 
+// Supabase setup
+const supabase = createClient(
+  "https://fwqpzgoprwvmvgmbivac.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cXB6Z29wcnd2bXZnbWJpdmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM4Mjk1NDEsImV4cCI6MjA0OTQwNTU0MX0.q9avx0jhYYVCch89S0GAtk2fJMhKbxxMHa6Qu7sktP4"
+);
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 
 // Registration form elements
 const registrationForm = document.getElementById("registrationForm");
@@ -51,8 +61,16 @@ async function isUsernameAvailable(username) {
 
 // Add submit event listener
 registrationForm.addEventListener("submit", async (event) => {
-  event.preventDefault(); // Prevent default form submission behavior
-  let valid = true;
+  event.preventDefault();
+
+  // 👇 Define all inputs at the start of the event listener
+  const emailValue = email.value.trim();
+  const fullNameValue = fullname.value.trim();
+  const usernameValue = username.value.trim();
+  const passwordValue = password.value;
+  const confirmPasswordValue = confirmPassword.value;
+
+  let valid = true
 
   // Clear previous error messages
   emailError.textContent = "";
@@ -160,36 +178,69 @@ registrationForm.addEventListener("submit", async (event) => {
       valid = false;
     }
 
-  // If form validation passes, create a new user
-  if (valid) {
-    createUserWithEmailAndPassword(auth, email.value, password.value)
-      .then(async (userCredential) => {
-        const user = userCredential.user;
+// Final registration step
+if (valid) {
+  try {
+    // 1️⃣ Register with Firebase Authentication
+    const userCredential = await createUserWithEmailAndPassword(auth, emailValue, passwordValue);
+    const firebaseUser = userCredential.user;
 
-        // Save user details to Firestore
-        await setDoc(doc(db, "users", user.uid), {
-          username: username.value.trim(),
-          email: email.value.trim(),
-          fullname: fullname.value.trim()
-        });
+    // 2️⃣ Register with Supabase Authentication
+    const { data: supabaseData, error: supabaseAuthError } = await supabase.auth.signUp({
+      email: emailValue,
+      password: passwordValue
+    });
 
-        console.log("User registered:", user);
-        window.location.href = "./homepage.html";
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error("Error during registration:", errorMessage);
+    if (supabaseAuthError) {
+      console.error("Supabase Auth Error:", supabaseAuthError.message);
+      alert("Supabase signup failed: " + supabaseAuthError.message);
+      return;
+    }
 
-        if (errorCode === 'auth/email-already-in-use') {
-          emailError.textContent = "Email is already in use.";
-        } else if (errorCode === 'auth/invalid-email') {
-          emailError.textContent = "Invalid email format.";
-        } else if (errorCode === 'auth/weak-password') {
-          passwordError.textContent = "Password should be at least 6 characters.";
-        } else {
-          alert("An unexpected error occurred: " + errorMessage);
+    const supabaseUserId = supabaseData?.user?.id;
+    if (!supabaseUserId) {
+      console.error("No user ID returned from Supabase");
+      return;
+    }
+
+    // 3️⃣ Store user data in Firestore (Firebase)
+    await setDoc(doc(db, "users", firebaseUser.uid), {
+      email: emailValue,
+      fullname: fullNameValue,
+      username: usernameValue
+    });
+
+    // 4️⃣ Store user data in Supabase Table
+    const { error: supabaseInsertError } = await supabase
+      .from("users")
+      .insert([
+        {
+          id: supabaseUserId,
+          email: emailValue,
+          fullname: fullNameValue,
+          username: usernameValue
         }
-      });
+      ]);
+
+    if (supabaseInsertError) {
+      console.error("Supabase insert error:", supabaseInsertError);
+      alert("Error saving data to Supabase: " + supabaseInsertError.message);
+      return;
+    }
+
+    console.log("User registered in Firebase and Supabase.");
+    window.location.href = "./homepage.html";
+  } catch (error) {
+    console.error("Registration failed:", error);
+    alert("Registration failed: " + error.message);
+
+    // Show specific Firebase error messages
+    if (error.code === 'auth/email-already-in-use') {
+      emailError.textContent = "Email is already in use.";
+    } else if (error.code === 'auth/invalid-email') {
+      emailError.textContent = "Invalid email format.";
+    } else if (error.code === 'auth/weak-password') {
+      passwordError.textContent = "Password should be at least 6 characters.";
+    }}
   }
 });
