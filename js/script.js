@@ -1005,13 +1005,13 @@ document.addEventListener("click", (e) => {
     dropdown1.style.display = "none"; // Optionally hide the dropdown
   }
 });
+// Search input event
 searchInput.addEventListener("input", async function () {
   const queryText = searchInput.value.toLowerCase().trim();
   dropdown1.innerHTML = ""; // Clear previous results
 
   if (queryText) {
     try {
-      // Query Firestore
       const usersRef = collection(db, "users");
       const q = query(
         usersRef,
@@ -1023,52 +1023,53 @@ searchInput.addEventListener("input", async function () {
       if (!querySnapshot.empty) {
         dropdown1.style.display = "block";
 
-        // **Prevent Duplicates**: Use a Set with normalized usernames
-        const seenUsers = new Set();
+        // Use a Map to prevent duplicates
+        const seenUsers = new Map();
 
         querySnapshot.forEach((doc) => {
           const user = doc.data();
-          const normalizedUsername = user.username.trim().toLowerCase(); // Normalize username
+          const normalizedUsername = user.username.trim().toLowerCase();
 
           if (!seenUsers.has(normalizedUsername)) {
-            seenUsers.add(normalizedUsername); // Add normalized username to Set
-
-            const item = document.createElement("div");
-            item.classList.add("dropdown-item");
-            item.style.cursor = "pointer";
-            item.style.gap = "10px";
-
-            const searchProfileImage = document.createElement("img");
-            searchProfileImage.classList.add("search-profile-image");
-            searchProfileImage.style.cursor = "pointer";
-
-            const defaultSrc = "/assets/images/profile-pic.jpg";
-            searchProfileImage.src = defaultSrc;
-
-            async function fetchProfile() {
-              const { data, error } = await supabase
-                .from("profile_images")
-                .select("profile_image_url")
-                .eq("author_name", user.username);
-
-              if (!error && data.length > 0) {
-                searchProfileImage.src = data[0].profile_image_url;
-              }
-            }
-            fetchProfile();
-
-            item.innerHTML = `<p>${user.username}</p>`;
-            item.appendChild(searchProfileImage);
-
-            item.addEventListener("click", function () {
-              window.location.href = `/usersProfile.html?username=${user.username}`;
-            });
-
-            dropdown1.appendChild(item);
+            seenUsers.set(normalizedUsername, user);
           }
         });
+
+        // Render each unique user from Map
+        seenUsers.forEach((user) => {
+          const item = document.createElement("div");
+          item.classList.add("dropdown-item");
+          item.style.cursor = "pointer";
+          item.style.gap = "10px";
+
+          const searchProfileImage = document.createElement("img");
+          searchProfileImage.classList.add("search-profile-image");
+          searchProfileImage.style.cursor = "pointer";
+          searchProfileImage.src = "/assets/images/profile-pic.jpg"; // Default
+
+          // Fetch profile image from Supabase
+          (async function fetchProfile() {
+            const { data, error } = await supabase
+              .from("profile_images")
+              .select("profile_image_url")
+              .eq("author_name", user.username);
+
+            if (!error && data.length > 0) {
+              searchProfileImage.src = data[0].profile_image_url;
+            }
+          })();
+
+          item.innerHTML = `<p>${user.username}</p>`;
+          item.appendChild(searchProfileImage);
+
+          item.addEventListener("click", function () {
+            window.location.href = `/usersProfile.html?username=${user.username}`;
+          });
+
+          dropdown1.appendChild(item);
+        });
+
       } else {
-        // Show "Not found" message if no results
         dropdown1.innerHTML = "";
         const notFoundItem = document.createElement("div");
         notFoundItem.classList.add("dropdown-item");
@@ -1124,6 +1125,6 @@ const storyProfile = document.getElementById("story-Profile");
           }
       }
       catch{
-
+          console.error("Error fetching story profile: ", error);
       }
     }
